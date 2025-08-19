@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Proof Request — Success{% endblock %}
+{% block content %}
+<h1>Request Received ✅</h1>
+<p>Status: <strong>{{ job.status.replace('-', ' ').title() }}</strong></p>
+<ul>
+  <li><strong>ID:</strong> {{ job.id }}</li>
+  <li><strong>Project:</strong> {{ job.project }}</li>
+  <li><strong>Customer:</strong> {{ job.customer.name }} — {{ job.customer.email }}</li>
+</ul>
+<p><a class="btn" href="{{ url_for('admin_dashboard') }}">View in Admin</a></p>
+{% endblock %}

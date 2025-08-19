@@ -1,408 +1,60 @@
-/* ========== Base & Theme ========== */
-:root {
-  --color-black: #000;
-  --color-gray-dark: #333;
-  --color-gold: #FFD200;
-  --color-white: #fff;
+:root{
+  --bg:#0f1115;
+  --panel:#151922;
+  --panel-2:#1b2130;
+  --text:#e9edf1;
+  --muted:#a7b0bf;
+  --brand:#7cc4ff;
+  --ok:#a6ff9c;
+  --warn:#ffd27c;
+  --danger:#ff7c7c;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*{ box-sizing: border-box; }
+html, body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:system-ui,Segoe UI,Roboto,Ubuntu,Cantarell,sans-serif; }
 
-html, body { height: 100%; }
+.container{ max-width:980px; margin:0 auto; padding:20px; }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  color: var(--color-gray-dark);
-  background: url('images/Wall Wrap.jpg') center/cover fixed no-repeat;
-  line-height: 1.6;
-  padding-top: 88px; /* keep content below sticky header */
+.site-header{ background:linear-gradient(180deg, rgba(124,196,255,0.1), rgba(0,0,0,0)); border-bottom:1px solid #1d2330; }
+.header-inner{ display:flex; align-items:center; justify-content:space-between; }
+.brand{ color:var(--brand); text-decoration:none; font-weight:700; font-size:1.25rem; letter-spacing:0.5px; }
+.nav a{ color:var(--text); text-decoration:none; margin-left:16px; opacity:0.9; }
+.nav a:hover{ color:var(--brand); }
+
+.site-footer{ border-top:1px solid #1d2330; opacity:0.8; }
+
+.btn{ display:inline-block; padding:10px 16px; border-radius:10px; border:1px solid #2a3142; background:var(--panel-2); color:var(--text); text-decoration:none; cursor:pointer; }
+.btn:hover{ outline:1px solid #2e3a52; }
+.small{ padding:6px 10px; font-size:0.9rem; }
+
+.form-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;
+  background:var(--panel); padding:16px; border-radius:14px; border:1px solid #1d2330;
 }
-
-/* Generic containers */
-.container {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
+.form-grid .full{ grid-column:1/-1; }
+label{ display:block; font-size:0.9rem; color:var(--muted); margin-bottom:6px; }
+input, select, textarea{
+  width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a3142; background:var(--panel-2); color:var(--text);
 }
+textarea{ resize:vertical; }
 
-/* ========== Header / Nav (Sticky) ========== */
-header {
-  background: var(--color-black);
-  color: var(--color-white);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
+.flash-wrap{ margin-top:12px; }
+.flash{ background:#10141c; border:1px solid #263046; padding:10px 12px; border-radius:10px; margin-bottom:10px; }
+.flash.success{ border-color:#224e36; color:var(--ok); }
+.flash.error{ border-color:#4e2222; color:var(--danger); }
 
-header .nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1rem 0;
-}
+.grid-2{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.quote{ list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; }
+.quote .total{ grid-column:1/-1; font-size:1.1rem; }
 
-/* Text logo in header */
-.logo-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--color-white);
-  margin: 0;
-}
+.jobs{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+.job{ background:var(--panel); border:1px solid #1d2330; border-radius:14px; padding:14px; }
+.job header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.badge{ padding:4px 8px; border-radius:999px; font-size:0.75rem; background:#10141c; border:1px solid #263046; }
+.badge.print-ready{ color:var(--ok); border-color:#224e36; }
+.badge.needs-proof{ color:var(--warn); border-color:#4a3b1f; }
 
-.site-logo {
-  height: 50px;      /* adjust to fit header height */
-  width: auto;
-  display: block;
-  object-fit: contain;
-}
+.files{ list-style:none; padding:0; }
+.files li{ margin-bottom:6px; }
 
-header ul {
-  list-style: none;
-  display: flex;
-  gap: 1.5rem;
-}
-
-header ul li a {
-  font-weight: 600;
-  color: var(--color-white);
-  text-decoration: none;
-  padding: 0.5rem;
-  transition: color 0.2s ease;
-}
-
-header ul li a:hover { color: var(--color-gold); }
-
-header ul li a.active {
-  color: var(--color-gold);
-  text-decoration: underline;
-}
-
-/* ========== Hero (index) & Page Banners (other pages) ========== */
-/* The hero's background image is set inline in HTML:
-   style="background-image: url('images/Front Wall Wrap.jpg');" */
-.hero {
-  min-height: 70vh;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: var(--color-white);
-}
-
-.hero-text {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 2rem;
-}
-
-.hero-text h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.hero-text p { font-size: 1.125rem; }
-
-.hero .btn {
-  display: inline-block;
-  background: var(--color-gold);
-  color: var(--color-black);
-  padding: 0.75rem 2rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  border: none;
-  margin-top: 1rem;
-  transition: background 0.2s ease;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.hero .btn:hover { background: #e6bd00; }
-
-/* Logo above hero text (index only) */
-.hero-logo {
-  max-width: 500px;
-  height: auto;
-  margin: 0 auto 1rem auto;
-  display: block;
-}
-
-/* Smaller banner on inner pages; set bg inline like hero */
-.page-banner {
-  height: 200px;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-white);
-  font-size: 2rem;
-  font-weight: 700;
-  text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
-}
-
-/* ========== Sections & Typography ========== */
-section.container { padding: 2rem 0; }
-
-section.container h2 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--color-black);
-}
-
-/* ========== Cards / Grids (services & portfolio) ========== */
-.service-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.service-card {
-  background: rgba(255,255,255,0.92);
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.service-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-}
-
-.service-card h3 {
-  margin: 0.75rem 1rem 0.5rem 1rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-black);
-}
-
-.service-card p {
-  margin: 0 1rem 1rem 1rem;
-}
-
-/* ========== Contact Form ========== */
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-width: 520px;
-  background: rgba(255,255,255,0.95);
-  padding: 1rem;
-  border-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.contact-form label {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.contact-form input,
-.contact-form textarea {
-  width: 100%;
-  border: 1px solid #bbb;
-  padding: 0.6rem 0.7rem;
-  border-radius: 4px;
-  background: #fff;
-}
-
-.contact-form button {
-  background: var(--color-gold);
-  color: var(--color-black);
-  padding: 0.8rem 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  border: none;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.contact-form button:hover { background: #e6bd00; }
-
-/* ========== Footer ========== */
-footer {
-  background: #111;
-  color: var(--color-white);
-  text-align: center;
-  padding: 1rem 0;
-  margin-top: 2rem;
-}
-
-footer p { font-size: 0.9rem; }
-
-/* ========== Utilities ========== */
-.active { text-decoration: underline; }
-
-/* ========== Responsive Tweaks ========== */
-@media (max-width: 900px) {
-  .hero-text h2 { font-size: 2.1rem; }
-}
-
-@media (max-width: 768px) {
-  .hero-text { padding: 1.25rem; }
-  .hero-text h2 { font-size: 1.8rem; }
-  .hero-text p { font-size: 1rem; }
-
-  header ul { gap: 1rem; }
-}
-
-/* ===== Slider ===== */
-.slider {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
-  background: rgba(0,0,0,0.15);
-}
-
-/* 16:9-ish height; adjust as needed */
-.slides {
-  display: flex;
-  transition: transform 400ms ease;
-  width: 100%;
-}
-
-.slide {
-  min-width: 100%;
-  height: clamp(220px, 55vh, 700px);
-  display: grid;
-  place-items: center;
-  background: #000;
-}
-
-.slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;     /* contain shows full image; use cover if you want fill */
-  background: #000;
-}
-
-/* Prev/Next buttons */
-.slider-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: rgba(0,0,0,0.45);
-  color: #fff;
-  font-size: 2rem;
-  width: 44px;
-  height: 44px;
-  line-height: 44px;
-  text-align: center;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 2;
-  transition: background 0.2s ease;
-}
-.slider-btn:hover { background: rgba(0,0,0,0.7); }
-.slider-btn.prev { left: 12px; }
-.slider-btn.next { right: 12px; }
-
-/* Dots */
-.slider-dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-.dot {
-  width: 10px;
-  height: 10px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.6);
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.35) inset;
-  cursor: pointer;
-}
-.dot.active { background: var(--color-gold); }
-
-/* Status text (e.g., 3 / 12) */
-.slider-status {
-  text-align: center;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,.6);
-  margin-top: 6px;
-  font-weight: 600;
-}
-/* Portfolio slider frame */
-.slide {
-  min-width: 100%;
-  height: clamp(240px, 60vh, 800px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  /* MATCH page background */
-  background: inherit;        /* uses the same background as the parent */
-  background-size: cover;     /* makes sure it fills if needed */
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-/* Images inside slider */
-.slide img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain; /* keeps full image visible */
-  display: block;
-}
-/* ===== Slider: Fade mode ===== */
-.slider {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
-  background: transparent; /* we already made it blend with the page */
-}
-
-.slides {
-  position: relative;
-  width: 100%;
-  height: clamp(240px, 60vh, 800px);
-}
-
-/* Each slide stacks on top; we fade the active one in */
-.slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 450ms ease; /* fade speed */
-  pointer-events: none;           /* clicks pass through hidden slides */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: inherit;            /* seamless with page bg */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.slide.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Image sizing: show full image without cropping */
-.slide img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  display: block;
-}
-
-/* Keep your existing .slider-btn, .slider-dots, .dot styles */
+.shell{ background:var(--panel); padding:18px; border-radius:14px; border:1px solid #1d2330; }

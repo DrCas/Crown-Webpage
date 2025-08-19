@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Admin — Order{% endblock %}
+{% block content %}
+<h1>Order</h1>
+<div class="summary">
+  <div><strong>ID:</strong> {{ job.id }}</div>
+  <div><strong>Status:</strong> {{ job.status.replace('-', ' ').title() }}</div>
+  <div><strong>Created:</strong> {{ job.created_at }}</div>
+</div>
+
+<h2>Customer</h2>
+<ul>
+  <li><strong>Name:</strong> {{ job.customer.name }}</li>
+  <li><strong>Email:</strong> {{ job.customer.email }}</li>
+  {% if job.customer.phone %}<li><strong>Phone:</strong> {{ job.customer.phone }}</li>{% endif %}
+</ul>
+
+{% if job.type == "quick_order" %}
+<h2>Details</h2>
+<ul>
+  <li><strong>Product:</strong> {{ job.product.replace('_',' ').title() }}</li>
+  <li><strong>Size:</strong> {{ job.size }}</li>
+  <li><strong>Qty:</strong> {{ job.quantity }}</li>
+  <li><strong>Paper:</strong> {{ job.options.paper }}</li>
+  <li><strong>Color:</strong> {{ job.options.color.replace('_',' ').title() }}</li>
+  <li><strong>Sides:</strong> {{ job.options.sides.title() }}</li>
+  <li><strong>Turnaround:</strong> {{ job.options.turnaround.replace('_',' ').title() }}</li>
+  <li><strong>Total:</strong> {{ job.total|money }}</li>
+  {% if job.notes %}<li><strong>Notes:</strong> {{ job.notes }}</li>{% endif %}
+</ul>
+{% else %}
+<h2>Project</h2>
+<ul>
+  <li><strong>Title:</strong> {{ job.project }}</li>
+  <li><strong>Specs:</strong> {{ job.specs }}</li>
+</ul>
+{% endif %}
+
+{% if job.files and job.files|length > 0 %}
+<h2>Files</h2>
+<ul class="files">
+  {% for f in job.files %}
+    <li><a href="{{ url_for('uploaded_file', filename=f) }}" target="_blank">{{ f }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if job.changes %}
+<h2>Change Requests</h2>
+<ul>
+  {% for c in job.changes %}
+    <li><em>{{ c.created_at }}</em> — {{ c.note }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<p><a class="btn" href="{{ url_for('admin_dashboard') }}">Back</a></p>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Request a Change{% endblock %}
+{% block content %}
+<h1>Request a Change</h1>
+<form method="post" class="form-grid">
+  <div class="full">
+    <label>Describe the change you need</label>
+    <textarea name="change_notes" rows="5" required></textarea>
+  </div>
+  <button class="btn" type="submit">Submit Change Request</button>
+</form>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Quick Order{% endblock %}
+{% block content %}
+<h1>Quick Order</h1>
+
+<form class="form-grid" method="post" action="{{ url_for('quick_review') }}">
+  <div>
+    <label>Product</label>
+    <select name="product" required>
+      <option value="" disabled selected>Select…</option>
+      {% for key in PRICING.keys() %}
+        <option value="{{ key }}">{{ key.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label>Size</label>
+    <select name="size" required>
+      <option value="" disabled selected>Select…</option>
+      <option>3.5x2</option>
+      <option>8.5x11</option>
+      <option>5x7</option>
+      <option>18x24</option>
+      <option>24x36</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Quantity</label>
+    <input type="number" name="quantity" min="1" step="1" value="100" required>
+  </div>
+
+  <div>
+    <label>Paper</label>
+    <select name="paper">
+      {% for k in MODIFIERS.paper.keys() %}
+        <option value="{{ k }}">{{ k.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label>Color</label>
+    <select name="color">
+      {% for k in MODIFIERS.color.keys() %}
+        <option value="{{ k }}">{{ k.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label>Sides</label>
+    <select name="sides">
+      {% for k in MODIFIERS.sides.keys() %}
+        <option value="{{ k }}">{{ k.title() }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label>Turnaround</label>
+    <select name="turnaround">
+      {% for k in MODIFIERS.turnaround.keys() %}
+        <option value="{{ k }}">{{ k.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="full">
+    <button class="btn" type="submit">Review Quote</button>
+  </div>
+</form>
+{% endblock %}

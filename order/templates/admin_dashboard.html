@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Admin — Jobs{% endblock %}
+{% block content %}
+<h1>Jobs</h1>
+<p><a class="btn small" href="{{ url_for('admin_logout') }}">Log out</a></p>
+
+{% if not jobs %}
+  <p>No jobs yet.</p>
+{% else %}
+  <div class="jobs">
+    {% for j in jobs %}
+      <article class="job">
+        <header>
+          <strong>{{ j.type.replace('_',' ').title() }}</strong>
+          <span class="badge {{ j.status }}">{{ j.status.replace('-', ' ') }}</span>
+        </header>
+        <div class="meta">
+          <div><strong>ID:</strong> {{ j.id }}</div>
+          <div><strong>Created:</strong> {{ j.created_at }}</div>
+          <div><strong>Name:</strong> {{ j.customer.name }}</div>
+          <div><strong>Email:</strong> {{ j.customer.email }}</div>
+        </div>
+        <footer>
+          <a class="btn small" href="{{ url_for('admin_order', job_id=j.id) }}">View</a>
+        </footer>
+      </article>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
