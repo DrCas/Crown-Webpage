@@ -1,35 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Request a Proof{% endblock %}
+{% block title %}Proof Request{% endblock %}
 {% block content %}
-<h1>Request a Proof / Bigger Order</h1>
-<form class="form-grid" action="{{ url_for('proof_review') }}" method="post" enctype="multipart/form-data">
-  <div>
-    <label>Your Name</label>
-    <input type="text" name="customer_name" required>
-  </div>
-  <div>
-    <label>Email</label>
-    <input type="email" name="customer_email" required>
-  </div>
-  <div>
-    <label>Phone</label>
-    <input type="tel" name="phone">
-  </div>
-  <div class="full">
-    <label>Project Title</label>
-    <input type="text" name="project" placeholder="e.g., Trifold brochure, 500 qty" required>
-  </div>
-  <div class="full">
-    <label>Specs / Notes</label>
-    <textarea name="specs" rows="4" placeholder="Sizes, stock, finishes, folds, colors, turnaround..."></textarea>
-  </div>
-  <div class="full">
-    <label>Upload Files</label>
+<h2>Request a Proof</h2>
+<form method="post" action="/order/proof/submit" enctype="multipart/form-data">
+  <fieldset>
+    <legend>Contact</legend>
+    <label>Name <input name="customer_name" required></label>
+    <label>Email <input name="customer_email" type="email" required></label>
+    <label>Phone <input name="phone"></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Project</legend>
+    <label>Project Name <input name="project" required></label>
+    <label>Specs / Notes <textarea name="specs" rows="4"></textarea></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Files</legend>
     <input type="file" name="files" multiple>
-    <small>Files are stored locally in /order/uploads (demo).</small>
-  </div>
-  <div class="full">
-    <button class="btn" type="submit">Review</button>
-  </div>
+  </fieldset>
+
+  <button class="btn" type="submit">Submit Proof Request</button>
 </form>
 {% endblock %}

@@ -1,5 +1,3 @@
-# Central pricing + calculation shared by templates and app
-
 PRICING = {
     "business_cards": {
         "3.5x2": {"base": 10.00, "per_100": 8.00},
@@ -27,7 +25,7 @@ def calculate_price(product, size, quantity, options):
     if not cfg:
         return 0.0
 
-    price = cfg.get("base", 0.0)
+    price = float(cfg.get("base", 0.0))
 
     if "per_100" in cfg:
         steps = max(0, quantity // 100)

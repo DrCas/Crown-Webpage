@@ -1,14 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Quick Order — Success{% endblock %}
+{% block title %}Order Submitted{% endblock %}
 {% block content %}
-<h1>Order Received ✅</h1>
-<p>Status: <strong>{{ job.status.replace('-', ' ').title() }}</strong></p>
-<ul>
-  <li><strong>ID:</strong> {{ job.id }}</li>
-  <li><strong>Product:</strong> {{ job.product.replace('_',' ').title() }}</li>
-  <li><strong>Size:</strong> {{ job.size }}</li>
-  <li><strong>Qty:</strong> {{ job.quantity }}</li>
-  <li><strong>Total:</strong> {{ job.total|money }}</li>
-</ul>
-<p><a class="btn" href="{{ url_for('admin_dashboard') }}">View in Admin</a></p>
+<h2>Thanks! Your quick order was submitted.</h2>
+<p><strong>Order ID:</strong> {{ job.id }}</p>
+<p><strong>Total:</strong> {{ job.total|money }}</p>
+<p>We’ll email you shortly with next steps.</p>
+<a class="btn" href="/order">Back to Orders</a>
 {% endblock %}

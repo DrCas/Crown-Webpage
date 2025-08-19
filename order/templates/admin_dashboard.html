@@ -1,30 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Admin — Jobs{% endblock %}
+{% block title %}Admin - Orders{% endblock %}
 {% block content %}
-<h1>Jobs</h1>
-<p><a class="btn small" href="{{ url_for('admin_logout') }}">Log out</a></p>
-
-{% if not jobs %}
-  <p>No jobs yet.</p>
-{% else %}
-  <div class="jobs">
+<h2>Orders</h2>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Type</th><th>Status</th><th>Created</th><th>Total</th><th></th></tr>
+  </thead>
+  <tbody>
     {% for j in jobs %}
-      <article class="job">
-        <header>
-          <strong>{{ j.type.replace('_',' ').title() }}</strong>
-          <span class="badge {{ j.status }}">{{ j.status.replace('-', ' ') }}</span>
-        </header>
-        <div class="meta">
-          <div><strong>ID:</strong> {{ j.id }}</div>
-          <div><strong>Created:</strong> {{ j.created_at }}</div>
-          <div><strong>Name:</strong> {{ j.customer.name }}</div>
-          <div><strong>Email:</strong> {{ j.customer.email }}</div>
-        </div>
-        <footer>
-          <a class="btn small" href="{{ url_for('admin_order', job_id=j.id) }}">View</a>
-        </footer>
-      </article>
+    <tr>
+      <td>{{ j.id }}</td>
+      <td>{{ j.type }}</td>
+      <td>{{ j.status }}</td>
+      <td>{{ j.created_at }}</td>
+      <td>{% if j.total %}{{ j.total|money }}{% else %}-{% endif %}</td>
+      <td><a class="btn" href="/order/admin/jobs/{{ j.id }}">View</a></td>
+    </tr>
     {% endfor %}
-  </div>
-{% endif %}
+  </tbody>
+</table>
 {% endblock %}

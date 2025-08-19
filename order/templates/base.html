@@ -1,41 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}Crown Print{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Order - Crown{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  {% block head_extra %}{% endblock %}
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="{{ url_for('root_index') }}" class="brand">Crown</a>
-      <nav class="nav">
-        <a href="{{ url_for('quick_order') }}">Quick Order</a>
-        <a href="{{ url_for('proof_request') }}">Request a Proof</a>
-        <a href="{{ url_for('admin_dashboard') }}">Admin</a>
-      </nav>
-    </div>
+  <header class="container">
+    <h1 class="logo"><a href="/order">Orders</a></h1>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/order">Order</a></li>
+        <li><a href="/order/admin">Admin</a></li>
+      </ul>
+    </nav>
   </header>
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="flash-wrap container">
-        {% for category, msg in messages %}
-          <div class="flash {{ category }}">{{ msg }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-
   <main class="container">
     {% block content %}{% endblock %}
   </main>
-
-  <footer class="site-footer">
-    <div class="container">
-      <small>&copy; {{ 2025 }} Crown Print — Demo build</small>
-    </div>
+  <footer class="container" style="margin-top:3rem">
+    <small>&copy; {{ 2025 }} Crown</small>
   </footer>
 </body>
 </html>

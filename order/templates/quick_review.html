@@ -1,44 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Quick Order — Review{% endblock %}
+{% block title %}Review Order{% endblock %}
 {% block content %}
-<h1>Review Your Order</h1>
+<h2>Review Your Order</h2>
+<table>
+  <tr><th>Product</th><td>{{ quote.product }}</td></tr>
+  <tr><th>Size</th><td>{{ quote.size }}</td></tr>
+  <tr><th>Quantity</th><td>{{ quote.quantity }}</td></tr>
+  <tr><th>Paper</th><td>{{ quote.paper }}</td></tr>
+  <tr><th>Color</th><td>{{ quote.color }}</td></tr>
+  <tr><th>Sides</th><td>{{ quote.sides }}</td></tr>
+  <tr><th>Turnaround</th><td>{{ quote.turnaround }}</td></tr>
+  <tr><th>Total</th><td><strong>{{ quote.total|money }}</strong></td></tr>
+</table>
 
-<ul class="quote">
-  <li><strong>Product:</strong> {{ quote.product.replace('_',' ').title() }}</li>
-  <li><strong>Size:</strong> {{ quote.size }}</li>
-  <li><strong>Quantity:</strong> {{ quote.quantity }}</li>
-  <li><strong>Paper:</strong> {{ quote.paper }}</li>
-  <li><strong>Color:</strong> {{ quote.color.replace('_',' ').title() }}</li>
-  <li><strong>Sides:</strong> {{ quote.sides.title() }}</li>
-  <li><strong>Turnaround:</strong> {{ quote.turnaround.replace('_',' ').title() }}</li>
-  <li class="total"><strong>Total:</strong> {{ quote.total|money }}</li>
-</ul>
-
-<form method="post" action="{{ url_for('quick_submit') }}">
-  <input type="hidden" name="product" value="{{ quote.product }}">
-  <input type="hidden" name="size" value="{{ quote.size }}">
-  <input type="hidden" name="quantity" value="{{ quote.quantity }}">
-  <input type="hidden" name="paper" value="{{ quote.paper }}">
-  <input type="hidden" name="color" value="{{ quote.color }}">
-  <input type="hidden" name="sides" value="{{ quote.sides }}">
-  <input type="hidden" name="turnaround" value="{{ quote.turnaround }}">
-  <input type="hidden" name="total" value="{{ quote.total }}">
-
-  <div class="grid-2">
-    <div>
-      <label>Your Name</label>
-      <input type="text" name="customer_name" required />
-    </div>
-    <div>
-      <label>Email</label>
-      <input type="email" name="customer_email" required />
-    </div>
-  </div>
-  <div class="full">
-    <label>Notes (optional)</label>
-    <textarea name="notes" rows="3"></textarea>
-  </div>
-
-  <button class="btn" type="submit">Place Print‑Ready Order</button>
+<form method="post" action="/order/quick/submit">
+  {% for k,v in quote.items() %}
+    <input type="hidden" name="{{k}}" value="{{v}}">
+  {% endfor %}
+  <button class="btn" type="submit">Submit Order</button>
+  <a class="btn" href="/order/quick">Edit</a>
 </form>
 {% endblock %}
