@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Order - Choose Type{% endblock %}
 {% block content %}
-  <h2>Place an Order</h2>
-  <p>Choose the type of order:</p>
-  <div class="cards">
-    <div class="card">
-      <h3>Quick Order</h3>
-      <p>Print-ready files. Instant price. Fast checkout.</p>
-      <a class="btn" href="/order/quick">Start Quick Order</a>
+  <section class="container">
+    <h2>Place an Order</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Quick Order</h3>
+        <p>Print-ready files. Instant price. Fast checkout.</p>
+        <a class="btn" href="/order/quick">Start Quick Order</a>
+      </div>
+      <div class="card">
+        <h3>Proof Request</h3>
+        <p>Need a proof or design help? Upload files and details.</p>
+        <a class="btn" href="/order/proof">Start Proof Request</a>
+      </div>
     </div>
-    <div class="card">
-      <h3>Proof Request</h3>
-      <p>Need design help or a proof? Upload files and details.</p>
-      <a class="btn" href="/order/proof">Start Proof Request</a>
-    </div>
-  </div>
+  </section>
 {% endblock %}
