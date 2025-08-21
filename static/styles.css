@@ -13,7 +13,7 @@ html, body { height: 100%; }
 body {
   font-family: 'Poppins', sans-serif;
   color: var(--color-gray-dark);
-  background: url('/images/Wall\ Wrap.jpg') center/cover fixed no-repeat;
+  background: url('/images/Wall Wrap.jpg') center/cover fixed no-repeat;
   line-height: 1.6;
   padding-top: 88px; /* keep content below sticky header */
 }
