@@ -45,7 +45,7 @@ def money_filter(v):
         return v
 
 # ------------------------- ORDER LANDING -------------------------
-@app.get("/order")
+@app.get("/order/template/order_home")
 def order_home():
     # Landing with two options (Quick Order, Proof Request)
     return render_template("order_home.html")
