@@ -1,19 +1,3 @@
-# ------------------------- MAIN LANDING PAGES -------------------------
-@app.get("/")
-def home():
-    return render_template("index.html")
-
-@app.get("/about")
-def about():
-    return render_template("about.html")
-
-@app.get("/contact")
-def contact():
-    return render_template("contact.html")
-
-@app.get("/portfolio")
-def portfolio():
-    return render_template("portfolio.html")
 import os
 import json
 import uuid
@@ -204,3 +188,20 @@ def admin_order(job_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+# ------------------------- MAIN LANDING PAGES -------------------------
+@app.get("/")
+def home():
+    return render_template("index.html")
+
+@app.get("/about")
+def about():
+    return render_template("about.html")
+
+@app.get("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.get("/portfolio")
+def portfolio():
+    return render_template("portfolio.html")
