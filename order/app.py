@@ -1,3 +1,19 @@
+# ------------------------- MAIN LANDING PAGES -------------------------
+@app.get("/")
+def home():
+    return render_template("index.html")
+
+@app.get("/about")
+def about():
+    return render_template("about.html")
+
+@app.get("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.get("/portfolio")
+def portfolio():
+    return render_template("portfolio.html")
 import os
 import json
 import uuid
@@ -45,7 +61,7 @@ def money_filter(v):
         return v
 
 # ------------------------- ORDER LANDING -------------------------
-@app.get("/order/template/order_home")
+@app.get("/order")
 def order_home():
     # Landing with two options (Quick Order, Proof Request)
     return render_template("order_home.html")
