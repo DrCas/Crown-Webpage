@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Order Submitted{% endblock %}
+{% block content %}
+<h2>Thanks! Your quick order was submitted.</h2>
+<p><strong>Order ID:</strong> {{ job.id }}</p>
+<p><strong>Total:</strong> {{ job.total|money }}</p>
+<p>We’ll email you shortly with next steps.</p>
+<a class="btn" href="/order">Back to Orders</a>
+{% endblock %}

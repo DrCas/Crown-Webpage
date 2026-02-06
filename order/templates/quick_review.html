@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Review Order{% endblock %}
+{% block content %}
+<h2>Review Your Order</h2>
+<table>
+  <tr><th>Product</th><td>{{ quote.product }}</td></tr>
+  <tr><th>Size</th><td>{{ quote.size }}</td></tr>
+  <tr><th>Quantity</th><td>{{ quote.quantity }}</td></tr>
+  <tr><th>Paper</th><td>{{ quote.paper }}</td></tr>
+  <tr><th>Color</th><td>{{ quote.color }}</td></tr>
+  <tr><th>Sides</th><td>{{ quote.sides }}</td></tr>
+  <tr><th>Turnaround</th><td>{{ quote.turnaround }}</td></tr>
+  <tr><th>Total</th><td><strong>{{ quote.total|money }}</strong></td></tr>
+</table>
+
+<form method="post" action="/order/quick/submit">
+  {% for k,v in quote.items() %}
+    <input type="hidden" name="{{k}}" value="{{v}}">
+  {% endfor %}
+  <button class="btn" type="submit">Submit Order</button>
+  <a class="btn" href="/order/quick">Edit</a>
+</form>
+{% endblock %}

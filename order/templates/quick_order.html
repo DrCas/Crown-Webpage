@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Quick Order{% endblock %}
+{% block content %}
+<h2>Quick Order</h2>
+<form method="post" action="/order/quick/review">
+  <label>Product
+    <select name="product" required>
+      {% for prod, sizes in PRICING.items() %}
+        <option value="{{ prod }}">{{ prod.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Size
+    <select name="size" required>
+      <option value="3.5x2">3.5" x 2" (Cards)</option>
+      <option value="8.5x11">8.5" x 11" (Flyers)</option>
+      <option value="5x7">5" x 7" (Flyers)</option>
+      <option value="18x24">18" x 24" (Posters)</option>
+      <option value="24x36">24" x 36" (Posters)</option>
+    </select>
+  </label>
+
+  <label>Quantity
+    <input type="number" name="quantity" min="1" value="100" required>
+  </label>
+
+  <fieldset>
+    <legend>Options</legend>
+    <label>Paper
+      <select name="paper">
+        <option value="standard">Standard</option>
+        <option value="premium">Premium</option>
+        <option value="ultra">Ultra</option>
+      </select>
+    </label>
+    <label>Color
+      <select name="color">
+        <option value="full_color">Full Color</option>
+        <option value="bw">Black & White</option>
+      </select>
+    </label>
+    <label>Sides
+      <select name="sides">
+        <option value="single">Single</option>
+        <option value="double">Double</option>
+      </select>
+    </label>
+    <label>Turnaround
+      <select name="turnaround">
+        <option value="standard">Standard</option>
+        <option value="rush">Rush</option>
+      </select>
+    </label>
+  </fieldset>
+
+  <button class="btn" type="submit">Review Price</button>
+</form>
+{% endblock %}

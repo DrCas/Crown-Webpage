@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Admin - Orders{% endblock %}
+{% block content %}
+<h2>Orders</h2>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Type</th><th>Status</th><th>Created</th><th>Total</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for j in jobs %}
+    <tr>
+      <td>{{ j.id }}</td>
+      <td>{{ j.type }}</td>
+      <td>{{ j.status }}</td>
+      <td>{{ j.created_at }}</td>
+      <td>{% if j.total %}{{ j.total|money }}{% else %}-{% endif %}</td>
+      <td><a class="btn" href="/order/admin/jobs/{{ j.id }}">View</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Crown GFX{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/order.css" />
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <a href="/" class="logo-link">
+  <img src="/images/HeaderLogo.png" alt="Crown GFX Logo" class="site-logo">
+</a>
+    <nav>
+      <ul>
+        <li><a href="/" class="active">Home</a></li>
+        <li><a href="/portfolio.html">Portfolio</a></li>
+        <li><a href="/order">Order</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+<footer>
+  <div class="container">
+    <p>&copy; 2025 Crown GFX | All Rights Reserved</p>
+  </div>
+</footer>
+</body>
+</html>
