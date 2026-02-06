@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% set active = "users" %}
+{% block content %}
+
+<div class="panel" style="max-width:680px;">
+  <div class="h1">Create User</div>
+  <p class="sub">Admin can create Admin or Staff accounts.</p>
+
+  <form class="form" method="post" style="margin-top:14px;">
+    <div class="field">
+      <label>Username</label>
+      <input name="username" required />
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input name="password" type="password" required />
+    </div>
+
+    <div class="field">
+      <label>Role</label>
+      <select name="role">
+        <option value="staff">staff</option>
+        <option value="admin">admin</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Create</button>
+    <a class="btn btn-ghost" href="{{ url_for('users') }}">Cancel</a>
+  </form>
+</div>
+
+{% endblock %}

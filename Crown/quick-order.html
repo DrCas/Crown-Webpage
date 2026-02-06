@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Order - Crown GFX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+<style>
+.order-box {
+  background: rgba(255,255,255,0.92);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  margin-bottom: 2rem;
+}
+.order-type-buttons button {
+  background: var(--color-gold);
+  color: #000;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo-link">
+      <img src="images/HeaderLogo.png" alt="Crown GFX Logo" class="site-logo">
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="quick-order.html" class="active">Quick Order</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="page-banner" style="background-image: url('images/Front Wall Wrap.jpg');">
+  <h2>Quick Order</h2>
+</section>
+
+<section class="container">
+  <div class="order-box">
+    <h2>Select Order Type</h2>
+    <div class="order-type-buttons">
+      <button id="quickPrintBtn">Quick Print Items</button>
+      <button id="largeProjectBtn">Large Projects / Wraps</button>
+    </div>
+  </div>
+
+  <!-- QUICK PRINT ORDER FORM -->
+  <div id="quickPrintForm" class="order-box hidden">
+    <h2>Quick Print Order</h2>
+    <form>
+      <label>Name</label>
+      <input type="text" required>
+
+      <label>Email</label>
+      <input type="email" required>
+
+      <label>Phone</label>
+      <input type="text" required>
+
+      <label>Product Type</label>
+      <select id="productType">
+        <option value="printed">Printed Decals</option>
+        <option value="diecut">Die-Cut (1 Color)</option>
+        <option value="banner">Banner</option>
+        <option value="poster">Poster</option>
+      </select>
+
+      <label>Width (inches)</label>
+      <input type="number" id="widthIn" required>
+
+      <label>Height (inches)</label>
+      <input type="number" id="heightIn" required>
+
+      <label>Quantity</label>
+      <input type="number" id="qty" required>
+
+      <label>Upload Artwork</label>
+      <input type="file">
+
+      <div class="calc-box">
+        <button type="button" id="calcPriceBtn">Calculate Price</button>
+        <p id="priceOutput"></p>
+      </div>
+
+      <button type="submit">Submit Order</button>
+    </form>
+  </div>
+
+  <!-- LARGE PROJECT FORM -->
+  <div id="largeProjectForm" class="order-box hidden">
+    <h2>Large Project / Wrap Order</h2>
+    <form>
+      <label>Name</label>
+      <input type="text" required>
+
+      <label>Company (optional)</label>
+      <input type="text">
+
+      <label>Email</label>
+      <input type="email" required>
+
+      <label>Phone</label>
+      <input type="text" required>
+
+      <label>Project Type</label>
+      <select>
+        <option>Full Wrap</option>
+        <option>Partial Wrap</option>
+        <option>Fleet Project</option>
+        <option>Wall Wrap</option>
+        <option>Custom Project</option>
+      </select>
+
+      <label>Year / Make / Model (if applicable)</label>
+      <input type="text">
+
+      <label>Project Details</label>
+      <textarea rows="5"></textarea>
+
+      <label>Upload Photos / Files</label>
+      <input type="file" multiple>
+
+      <div class="calc-box">
+        <p>Deposit Required: $250 (non‑refundable)</p>
+      </div>
+
+      <button type="submit">Submit Project</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>&copy; <span id="year"></span> Crown Graphics | All Rights Reserved</p>
+  </div>
+</footer>
+
+<script>
+// Toggle forms
+const quickPrintBtn = document.getElementById('quickPrintBtn');
+const largeProjectBtn = document.getElementById('largeProjectBtn');
+const quickForm = document.getElementById('quickPrintForm');
+const largeForm = document.getElementById('largeProjectForm');
+
+quickPrintBtn.onclick = () => {
+  quickForm.classList.remove('hidden');
+  largeForm.classList.add('hidden');
+};
+
+largeProjectBtn.onclick = () => {
+  largeForm.classList.remove('hidden');
+  quickForm.classList.add('hidden');
+};
+
+// PRICE CALCULATOR
+const calcBtn = document.getElementById('calcPriceBtn');
+const out = document.getElementById('priceOutput');
+
+calcBtn.onclick = () => {
+  const product = document.getElementById('productType').value;
+  let w = parseFloat(document.getElementById('widthIn').value);
+  let h = parseFloat(document.getElementById('heightIn').value);
+  let qty = parseInt(document.getElementById('qty').value);
+
+  if (!w || !h || !qty) {
+    out.textContent = "Enter valid size + quantity.";
+    return;
+  }
+
+  // ROTATION
+  let decalW = Math.min(w, h);
+  let decalH = Math.max(w, h);
+
+  let rollW = (product === "diecut") ? 30 : 54;
+  let pricePerSqft = (product === "diecut") ? 18 : 23;
+
+  let needsExtra12 = (product === "printed");
+
+  // Calculate rows
+  let usedHeight = 0;
+  let rowWidth = 0;
+  let rowHeight = decalH;
+
+  for (let i = 0; i < qty; i++) {
+    if (rowWidth + decalW <= rollW) {
+      rowWidth += decalW;
+    } else {
+      usedHeight += rowHeight;
+      rowWidth = decalW;
+    }
+  }
+  usedHeight += rowHeight;
+
+  if (needsExtra12) usedHeight += 12;
+
+  let sqft = (rollW * usedHeight) / 144;
+  sqft = Math.ceil(sqft);
+
+  let price = Math.max(50, sqft * pricePerSqft);
+
+  out.textContent = `Total: $${price} (${sqft} sqft)`;
+};
+</script>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

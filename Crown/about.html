@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About - Crown Graphics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo-link">
+      <img src="images/HeaderLogo.png" alt="Crown Graphics Logo" class="site-logo">
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-banner" style="background-image: url('images/Front Wall Wrap.webp');">
+    <h2>About</h2>
+  </section>
+
+  <section class="container readable glass">
+    <p>
+      At Crown Graphics, we bring your vision to life with high-quality wide-format printing,
+      professional vehicle wraps, and stunning custom graphics. Our team is dedicated
+      to delivering exceptional results on every project — from small decals to large
+      commercial wraps.
+    </p>
+    <p>
+      We pride ourselves on attention to detail, fast turnaround times, and customer
+      satisfaction. Whether you’re a small business or a large organization, we’ve got
+      the tools and expertise to help you stand out.
+    </p>
+    <p>
+  We proudly serve clients throughout Southern California, from Moreno Valley to Los Angeles,
+  Victorville to San Diego, and every city in between. Our work spans the entire Inland Empire
+  and surrounding regions, delivering custom graphics for a wide range of applications —
+  from schools and emergency vehicles to buses, boats, and trailers.
+</p>
+<p>
+  Whether it’s wall graphics, vehicle wraps, or ground-mounted signage, Crown Graphics
+  has the experience and capability to handle projects of any scale.
+</p>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>&copy; <span id="year"></span> Crown Graphics | All Rights Reserved</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

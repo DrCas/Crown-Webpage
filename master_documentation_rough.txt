@@ -1,0 +1,1464 @@
+Project: Crown Graphics Website (Static Prototype)
+✅ Durable Decisions
+
+Site type: Static HTML/CSS/JS prototype intended to visually replicate the existing CrownGFX website before integration into production.
+
+Pages:
+
+index.html (Home)
+
+portfolio.html
+
+about.html
+
+contact.html
+
+Navigation:
+
+Sticky header across all pages
+
+Header uses a custom image logo (not text)
+
+Consistent navigation links between pages
+
+Branding & Style:
+
+Primary font: Poppins (Google Fonts)
+
+Color scheme: black / white with gold accents
+
+Background image (“Wall Wrap”) applied site-wide
+
+Header/banner image (“Front Wall Wrap”) used on home hero and inner page banners
+
+Hero (Home page):
+
+Large hero section with background image
+
+Prominent centered logo (larger than header logo)
+
+CTA button linking to Contact page
+
+✅ Features Built
+
+Portfolio Slider (Core Feature):
+
+Full-width image slider with:
+
+Fade transition between slides
+
+Autoplay enabled
+
+Pause on hover
+
+Manual navigation (prev/next buttons, dots)
+
+Keyboard arrow support
+
+Touch swipe support
+
+No captions or descriptions (images only)
+
+Images load from:
+
+images/collections/slides/
+
+
+Filename convention:
+
+slide-1.jpg
+slide-2.jpg
+slide-N.jpg
+
+
+Slider logic:
+
+Attempts a numeric range (START_AT → END_AT)
+
+Keeps only images that successfully load
+
+Handles mixed file extensions (jpg/jpeg/png/webp, case-insensitive)
+
+Slider Visual Behavior:
+
+Images scaled with object-fit: contain
+
+No cropping
+
+Slider background inherits the page background (no black bars)
+
+Smooth opacity-based crossfade
+
+Contact Page:
+
+Simple form (HTML-based, not backend-connected)
+
+Portfolio Page:
+
+Banner header + slider only (no grid/gallery duplication)
+
+⚠️ Constraints / Assumptions
+
+Static site only (no backend, no CMS).
+
+Portfolio slider relies on consistent file naming.
+
+Folder and filename case sensitivity matters (especially for Linux/Pi hosting).
+
+Images must be locally accessible (no directory listing or server-side scanning).
+
+JavaScript-based auto-discovery only works within defined numeric bounds.
+
+🧩 Unresolved / Deferred Items
+
+No lightbox / fullscreen image view (explicitly declined).
+
+No backend integration yet:
+
+File uploads
+
+Checkout
+
+Order system
+
+No mobile nav (hamburger menu) yet.
+
+About & Contact pages not visually enhanced beyond baseline styling.
+
+No production optimization yet:
+
+Image lazy loading (beyond browser defaults)
+
+Minification
+
+Hosting/deployment setup
+
+
+✅ Durable Decisions
+
+Project structure
+
+Static site architecture with shared styles.css
+
+Core pages: Home, About, Portfolio, Contact, Quick Order
+
+Images organized under /images/Collection/ with a dedicated /Slides/ folder for portfolio automation
+
+Design system
+
+Brand palette: black, white, gold accent
+
+Global font: Poppins
+
+Sticky black header with active link highlighting
+
+Reusable .glass component for frosted/transparent panels
+
+Consistent page banners using the same hero image with gradient overlay 
+
+styles
+
+UX / layout rules
+
+Mobile-first responsive behavior with breakpoints at ~700–900px
+
+Background images applied to both html and body for consistency
+
+Readability wrapper (.readable) used for About and Contact text blocks
+
+🧱 Features Built
+
+Home page
+
+Hero section with logo, tagline, CTA
+
+Services grid with image cards (Vehicle Wraps, Signs & Banners, Custom Decals) 
+
+index
+
+About page
+
+Glass-styled content panel
+
+Professional company overview + regional service coverage 
+
+about
+
+Contact page
+
+Two-column layout:
+
+Left: contact form (mailto-based)
+
+Right: embedded Google Map, address, hours, phone, email
+
+Glass panels applied independently to form and info sections 
+
+contact
+
+Portfolio
+
+Fully automated slider:
+
+Auto-loads images based on filename pattern (slide-#.ext)
+
+Supports jpg/png/webp (case-insensitive)
+
+Autoplay with pause on hover
+
+Thumbnail strip for upcoming images
+
+Lightbox modal with backdrop, caption, and close controls
+
+Non-distorting image containment (no cropping, no black bars) 
+
+portfolio
+
+Quick Order page
+
+Order-type selector (Quick Print vs Large Projects)
+
+Quick Print form with:
+
+Size, quantity, product type
+
+Client-side price calculator with material logic
+
+Large Project form with:
+
+Project details
+
+File uploads
+
+Fixed deposit notice ($250)
+
+Pure front-end logic (no backend submission yet) 
+
+quick-order
+
+⚠️ Constraints / Known Limits
+
+Contact form uses mailto: (depends on user email client; not server-reliable)
+
+Portfolio image loading relies on strict filename convention
+
+Quick Order pricing is client-side only (not authoritative, no persistence)
+
+No backend handling yet for:
+
+Order storage
+
+File uploads
+
+Admin review
+
+Duplicate styles.css exists conceptually (root vs static in repo context) — needs consolidation before deployment
+
+🟡 Unresolved / Future Work
+
+Replace mailto: with server-side form handling
+
+Connect Quick Order forms to backend (App.py) and storage
+
+Admin portal integration for submitted orders
+
+Email notifications for new orders
+
+Final decision on:
+
+Single source of truth for CSS (/static/styles.css)
+
+Hosting/deployment path (local vs Pi vs production)
+
+Optional: validation + confirmation states on order submissions
+
+
+Crown Website + Order System — Master Summary
+Durable Decisions
+
+The Crown site is currently a static HTML/CSS website (no backend framework yet).
+
+File naming has been standardized to lowercase to ensure Linux/server compatibility.
+
+A single unified stylesheet (styles.css) is used across all pages.
+
+The existing site structure (index.html, about.html, portfolio.html, contact.html) remains intact and functional .
+
+The ordering system will be added alongside the existing site (not replacing it), initially for testing and later production.
+
+The ordering system is designed to support two distinct customer flows:
+
+Quick Order (print-ready jobs)
+
+Customer uploads artwork
+
+Price is calculated automatically
+
+Customer checks out
+
+Shop receives a “print-ready” notification
+
+Large / Proof-Required Orders
+
+Customer submits a detailed form (type, material, description, files)
+
+Customer pays a proof fee
+
+Shop creates and sends proofs
+
+Customer can approve or request changes
+
+Job is scheduled after approval
+
+During development, the order system will run in test mode:
+
+No real payments
+
+No real emails (emails written to a local outbox/log instead)
+
+Long-term deployment target is web hosting, not the Raspberry Pi, though the Pi is used for development/testing.
+
+Features Built (Current State)
+
+Fully styled static site with:
+
+Sticky header navigation
+
+Hero/banner sections
+
+Glass/frosted UI panels
+
+Responsive layouts
+
+Portfolio slider with thumbnails and lightbox
+
+Contact page with form + Google Maps embed 
+
+contact
+
+A Quick Order UI page (quick-order.html) already exists with:
+
+Toggle between Quick Print and Large Project flows
+
+Client-side price calculator for print items
+
+File upload inputs
+
+Deposit messaging for large projects 
+
+quick-order
+
+A backend prototype (Flask-based, not yet merged) has been designed to support:
+
+Orders database
+
+File uploads
+
+Proof workflows
+
+Admin dashboard
+
+Approval / change request links
+
+Scheduling
+
+Dummy payment + dummy email handling
+
+Constraints
+
+The live Crown site is static-only for now (no Python/Flask serving existing pages).
+
+Backend functionality (payments, email, admin, proofs) cannot be handled by static HTML alone.
+
+Any backend/order logic must live in:
+
+A separate /order service, or
+
+A future migration of the entire site into a backend framework.
+
+Current “Quick Order” page is UI-only; submissions do not persist data or notify the shop.
+
+Email handling on the contact page currently relies on mailto: (client-side, unreliable) 
+
+contact
+
+.
+
+Unresolved / Next Decisions
+
+Whether to:
+
+Keep the main Crown site static and host the order system as /order or a subdomain, or
+
+Fully migrate all pages into Flask templates for a unified app.
+
+Whether the existing quick-order.html UI should:
+
+Be wired into the backend system, or
+
+Be replaced by the backend-driven order pages.
+
+Final pricing logic for:
+
+Quick print items
+
+Proof fees
+
+Deposits and minimums
+
+Choice of production services:
+
+Payment provider (Stripe planned)
+
+Email provider (SMTP / SendGrid / etc.)
+
+Whether customers will later get:
+
+A login/portal to view proofs and job status
+
+Or email-only interactions
+
+
+Quick Order System — Durable Decisions & Status
+Purpose
+
+Create a unified Quick Order page for the Crown GFX website that supports:
+
+Fast, print-ready orders with automatic pricing and payment
+
+Larger custom projects (wraps, fleets, walls) that require a deposit and manual follow-up
+
+Pages & Files
+
+New page: quick-order.html
+
+Navigation: Added “Quick Order” link to the main header
+
+Styling: Uses existing styles.css theme plus section-boxed layout to prevent text from blending with background imagery
+
+Order Flows
+1. Quick Print Orders
+
+For banners, posters, printed decals, and simple die-cut vinyl.
+
+Features
+
+Customer info collection (name, email, phone)
+
+Product selection (printed vs die-cut)
+
+Size (inches), quantity input
+
+Artwork upload
+
+Front-end price calculator (JavaScript)
+
+Minimum order enforcement
+
+Prepared for future payment/email backend
+
+2. Large Projects / Wraps
+
+For vehicle wraps, partial wraps, fleets, wall wraps, and custom installs.
+
+Features
+
+Detailed project intake form
+
+File and photo uploads
+
+Fixed $250 non-refundable deposit (hard-coded but easily adjustable)
+
+Email notification placeholder
+
+Intended to generate internal temporary estimate for staff completion
+
+Pricing & Calculation Rules
+General
+
+All square footage is rounded up to the nearest whole foot
+
+Minimum charge: $50
+
+Printed Items
+
+Price: $23 per sqft
+
+Roll width: 54 inches
+
+Rotation allowed to optimize material usage
+
+Extra 12 inches added ONLY for items that require print-and-cut
+
+No extra material added for banners, posters, or non-cut prints
+
+Die-Cut (1-Color Vinyl)
+
+Price: $18 per sqft
+
+Roll width: 30 inches
+
+Rotation allowed
+
+No extra 12 inches added
+
+Material Usage Logic
+
+Decals are laid out row-by-row within roll width
+
+When width limit is reached, layout moves to next row
+
+Total used height determines material usage
+
+Square footage calculated from roll width × used height
+
+UI / UX Decisions
+
+Page layout matches existing site pages (header, banner, footer)
+
+All form sections are placed inside boxed panels with solid backgrounds for readability
+
+Order type selector toggles between Quick Print and Large Project forms
+
+No backend dependency yet (front-end only, backend-ready)
+
+Configuration Values (Easy to Change)
+
+Deposit amount: $250
+
+Printed price per sqft: $23
+
+Die-cut price per sqft: $18
+
+Roll widths: 54in (printed), 30in (die-cut)
+
+Minimum charge: $50
+
+Unresolved / Future Work
+
+Payment processor integration (Stripe or similar)
+
+Email sending (order + deposit confirmation)
+
+File handling backend
+
+Admin portal order ingestion
+
+Temporary estimate auto-generation (PDF or admin draft)
+
+Cart/multi-item support (optional future upgrade)
+
+
+Here’s a clean master-context summary capturing only the durable decisions, features built, constraints, and unresolved items from this chat, exactly as requested.
+
+🧠 Crown Graphics Website — Master Context Summary
+✅ Core Layout & Styling Decisions
+
+Sticky header (position: sticky; top: 0) used across all pages.
+
+Global background image applied to both html and body to prevent white flashes; switches to background-attachment: scroll on mobile for performance.
+
+Glass / frosted UI aesthetic adopted using a reusable .glass class:
+
+Semi-transparent white background (≈ 0.22–0.25 opacity)
+
+backdrop-filter: blur() for glass effect
+
+Rounded corners and soft shadows
+
+Hero section (Home) aligned to top, not vertically centered, so the hero text box touches the header.
+
+Page banners (About, Contact, Portfolio, Quick Order) include:
+
+Background image
+
+Dark gradient overlay
+
+Large, bold, centered heading text
+
+🏠 Home Page (index.html)
+
+Hero section with logo, headline, CTA button.
+
+Services grid implemented using .service-grid and .service-card:
+
+Image (fixed height, object-fit: cover)
+
+Service title + description
+
+Current services shown:
+
+Vehicle Wraps
+
+Signs & Banners
+
+Custom Decals
+
+Durable constraint: each service requires a corresponding image asset sized consistently.
+
+ℹ️ About Page (about.html)
+
+Uses a single centered glass panel (.readable.glass) for all text.
+
+Large readable typography with increased line-height and weight.
+
+Header text inside the page banner; internal <h2> is optional and can be hidden with .temp-hide.
+
+📞 Contact Page (contact.html)
+
+Two-column layout on desktop, stacked on mobile:
+
+Left: contact form
+
+Right: map + business info
+
+Each major element has its own glass panel:
+
+Contact intro text → .contact-intro.glass
+
+Form → .contact-form.glass
+
+Map & info → .contact-info.glass
+
+Google Maps embed points to the physical address:
+
+Crown Graphics
+
+13766 Redwood St, Chino, CA 91710
+
+Business info included:
+
+Address (formatted, business name bold)
+
+Hours
+
+Phone (clickable)
+
+Email (clickable)
+
+“Get Directions” link
+
+Contact form currently uses mailto: (no backend).
+
+🖼 Portfolio Page (portfolio.html)
+
+Custom JavaScript-powered slider:
+
+Main large image
+
+Upcoming thumbnail strip (5 images)
+
+Prev/Next navigation
+
+Autoplay with pause-on-hover
+
+Touch swipe support
+
+Lightbox modal for viewing images full-screen.
+
+Images dynamically loaded from images/Collection/Slides/slide-N.ext.
+
+Gallery grid and “show all” approach were explicitly abandoned due to scroll lag and performance concerns.
+
+Slider wrapped in a glass panel for consistency.
+
+⚡ Quick Order Page (quick-order.html)
+
+Two selectable order flows:
+
+Quick Print Items
+
+Large Projects / Wraps
+
+Dynamic show/hide of forms via JS.
+
+Pricing calculator logic implemented for quick print:
+
+Rotation allowed for efficiency
+
+Roll widths: 54" (printed), 30" (die-cut)
+
+Rates:
+
+Printed decals: $23 / sqft
+
+Die-cut (1 color): $18 / sqft
+
+Extra 12" material added only when required
+
+Rounded to nearest sqft
+
+$50 minimum enforced
+
+Large project flow includes:
+
+$250 non-refundable deposit (hardcoded but intended to be configurable later).
+
+🧩 Reusable Utilities & Conventions
+
+.glass → reusable frosted panel styling.
+
+.readable → typography/layout wrapper (no background by default).
+
+.temp-hide → used to temporarily hide elements without deletion.
+
+Footer includes auto-updating year via JS on all pages.
+
+⚠️ Constraints & Known Limitations
+
+No backend/email service yet (forms rely on mailto:).
+
+Portfolio performance limits prohibit full gallery or infinite scroll.
+
+Services page (/services/) exists externally; not yet mirrored on Home.
+
+Any new service added to Home must include an image asset sized for the service card layout.
+
+❓ Unresolved / Next Decisions
+
+Which additional services from /services/ should be added to Home.
+
+What images to use for those additional services (need sourcing or creation).
+
+Whether to:
+
+Create a dedicated internal Services page, or
+
+Keep services summarized on Home only.
+
+Future backend handling for contact + orders (email service, admin portal, DB).
+
+
+Durable Decisions & Architecture
+Glass / Panel System
+
+.glass is the single source of truth for all panel visuals (background, shadow, border, material look).
+
+All other classes (.readable, .contact-form, .contact-info, .about-panel, etc.) are layout and typography only.
+
+No class other than .glass should define:
+
+background color
+
+box-shadow
+
+blur / backdrop-filter
+
+Glass style chosen: edge-lit, light grey panel (material surface look, no heavy blur, no dark tint).
+
+Correct Usage Pattern
+
+Glass is applied directly to the element that should look like a panel.
+
+Do not apply .glass to layout wrappers (e.g. grids or containers).
+
+Valid usage examples:
+
+About page: <section class="container readable glass">
+
+Contact page: <form class="contact-form glass"> and <div class="contact-info glass">
+
+Portfolio: glass wrapper around slideshow content
+
+One visual panel = one element with .glass (no nesting glass inside glass).
+
+🎨 Visual & Design Decisions
+Glass Look (Final Direction)
+
+Edge-lit, neutral/light grey surface
+
+No strong blur (blur avoided or kept minimal)
+
+Achieved via:
+
+solid light grey background (not white, not dark)
+
+outer drop shadow for elevation
+
+subtle inner highlights for edge-lit effect
+
+Goal: feel like a physical surface / signage panel, not a trendy glass effect
+
+Page Banners
+
+Inner page banners use:
+
+background image
+
+dark gradient overlay (::after)
+
+banner text with soft shadow
+
+Text readability handled by background overlay, not heavy text outlines.
+
+Matches the index hero style for consistency.
+
+🧱 CSS Constraints (Must Be Respected Going Forward)
+
+No .readable.glass selector (it overrides .glass and causes confusion).
+
+No panel styling in:
+
+.about-panel
+
+.contact-form
+
+.contact-info
+
+Those classes may keep:
+
+padding
+
+border-radius
+
+layout/grid rules
+
+.glass must not be overridden by more specific selectors.
+
+Avoid duplicating glass styles across page-specific classes.
+
+🛠 Features Built / Stabilized
+
+Centralized glass panel system
+
+Consistent panel behavior across:
+
+About
+
+Contact (form + info box)
+
+Portfolio slideshow wrapper
+
+Banner overlay system for all inner pages
+
+Header, hero, slider, and lightbox systems preserved (no redesign intended)
+
+⚠️ Known Pain Points / Watch-Outs
+
+Combining classes with higher specificity (e.g. .readable.glass) will override .glass.
+
+Adding background or shadow to layout/helper classes will silently break consistency.
+
+Visual changes that “don’t show up” are often caused by:
+
+selector specificity conflicts
+
+unintended leftover panel styles in old classes
+
+❓ Unresolved / To Be Verified
+
+Confirm all HTML pages only apply .glass to the intended elements (especially Contact).
+
+Optional future cleanup:
+
+remove unused semantic hooks like .about-panel if no longer needed
+
+final polish pass once layout/content is locked
+
+No hosting/caching issues (site currently opened via local files only).
+
+
+Here’s a clean, durable summary you can drop straight into a master context file.
+
+Project: Crown Graphics Website – Glass UI & Mobile Polish
+✅ Durable Decisions
+
+Glass UI direction finalized:
+
+Lightly frosted, mostly transparent glass panels
+
+Subtle blur (backdrop-filter)
+
+Rounded corners
+
+No glow, no gradients, no heavy opacity
+
+Consistent layout pattern across pages:
+
+section.container > .glass is the canonical structure
+
+Portfolio, About, and Contact now follow the same hierarchy
+
+Header behavior (desktop) intentionally remains:
+
+Full-width black bar
+
+Content constrained via .container (max-width 1200px)
+
+Mobile-first fixes prioritized over adding new features
+
+🛠 Features Built / Implemented
+
+Unified glass styling applied consistently to:
+
+Portfolio
+
+About
+
+Contact
+
+Mobile responsiveness fixes:
+
+Eliminated horizontal (left/right) scrolling
+
+Fixed black background gaps during mobile scroll/overscroll
+
+Centered and stacked header/nav on mobile
+
+Reduced banner/header heights on mobile
+
+Added spacing between page banner and first content block
+
+Background handling finalized:
+
+Same background image applied to both html and body
+
+Mobile-safe fallback (background-attachment: scroll)
+
+Contact page layout:
+
+Two-column layout on desktop
+
+Clean single-column stack on mobile
+
+Portfolio slider and gallery unaffected and preserved
+
+⚙️ Constraints / Technical Notes
+
+All fixes were implemented exclusively in styles.css
+
+No JavaScript changes required for layout or mobile fixes
+
+backdrop-filter is supported in Chrome/Edge/Safari
+
+Firefox gracefully degrades (no blur, still readable)
+
+Mobile browsers require disabling background-attachment: fixed
+
+❗ Unresolved / Optional Future Work
+
+Optional fine-tuning of text contrast over very busy background images
+
+Optional cleanup of Google Maps mobile embed UI text
+
+Packaging files for deployment (ZIP or repo handoff)
+
+Deployment target not yet chosen (shared hosting, GitHub Pages, Netlify, server)
+
+✅ Current Project State
+
+Design is client-ready
+
+Mobile and desktop behavior are stable
+
+Safe to share with stakeholders for approval
+
+Ready for deployment upon request
+
+
+Durable Decisions
+
+The Crown GFX website can be viewed on a mobile phone by opening the local index.html file, as long as the entire folder structure (HTML, CSS, images) is present.
+
+Mobile viewing is acceptable for layout, responsiveness, and visual review even when the site is not hosted.
+
+For the most accurate behavior, the site should be viewed through a local HTTP server or a temporary deployment rather than direct file:// access.
+
+🧩 Features Confirmed / Supported
+
+Static HTML/CSS sites (like Crown GFX) render correctly on mobile browsers when opened locally.
+
+Existing features confirmed to work in local mobile viewing:
+
+Responsive CSS
+
+Image loading via relative paths
+
+JavaScript-driven components (e.g., portfolio slider)
+
+Local mobile viewing is suitable for:
+
+Mobile layout validation
+
+Client/boss previews
+
+Pre-deployment QA checks
+
+⚠️ Constraints / Limitations
+
+Viewing via file:// on mobile browsers may have stricter security rules than desktop browsers.
+
+Behavior may differ slightly between platforms:
+
+Android browsers handle local files better than iOS Safari.
+
+Features that rely on hosting (e.g., API calls, advanced form handling) may not behave identically when opened locally.
+
+❓ Unresolved / Future Considerations
+
+Whether to standardize mobile testing via:
+
+A local development server, or
+
+A temporary hosted solution (GitHub Pages, Netlify, etc.)
+
+Decision on preferred preview method when sharing with stakeholders (local vs hosted).
+
+
+Here’s a clean, durable master-context summary from this chat only — structured so you can drop it straight into a master .txt or context file.
+
+Durable Decisions
+
+Portfolio page architecture
+
+The portfolio page is split into two distinct sections:
+
+Top section: an autoplay-only slideshow (non-interactive).
+
+Bottom section: a thumbnail gallery displaying all images.
+
+The slideshow is display-only (no clicking, no navigation).
+
+Clicking a thumbnail in the gallery opens a lightbox modal for viewing the full-size image.
+
+Glass UI usage
+
+The glass (frosted) effect is applied ONLY to the slideshow container.
+
+The gallery does NOT use glass to improve scrolling performance.
+
+This separation is intentional and should not be reversed.
+
+Layout spacing
+
+Both the slideshow and the gallery are wrapped in a shared inner container:
+
+.portfolio-inner
+
+This ensures:
+
+Neither section touches the screen edges.
+
+Consistent horizontal spacing across desktop and mobile.
+
+Spacing is handled structurally (wrapper), not via ad-hoc margins.
+
+Features Built
+
+Autoplay slideshow
+
+Automatically cycles through portfolio images.
+
+No user interaction (no click, drag, hover controls).
+
+Displays an image count indicator (e.g., 3 / 44).
+
+Thumbnail gallery
+
+Displays all portfolio images as square thumbnails.
+
+Responsive CSS grid adjusts column count by screen width.
+
+Thumbnails are clickable and open a lightbox.
+
+Lightbox viewer
+
+Full-screen modal overlay.
+
+Shows selected image at full resolution.
+
+Includes close button, backdrop click, and ESC-key support.
+
+Performance-oriented loading
+
+Images are explicitly indexed (no wildcard scanning).
+
+Thumbnails use:
+
+loading="lazy"
+
+decoding="async"
+
+IntersectionObserver to defer src assignment until near viewport.
+
+Slideshow and gallery rendering are separated to reduce repaint cost.
+
+Constraints / Assumptions
+
+Image naming convention (hard requirement)
+
+Images must be sequentially named:
+
+images/Collection/Slides/slide-1.jpg
+images/Collection/Slides/slide-2.jpg
+...
+images/Collection/Slides/slide-44.jpg
+
+
+Total image count is controlled by a single constant in portfolio.js.
+
+File structure
+
+portfolio.html and portfolio.js are in the same directory.
+
+All images are loaded from a fixed folder path (no dynamic discovery).
+
+Styling
+
+Glass blur (backdrop-filter) is considered expensive and should remain
+limited to static sections only (slideshow).
+
+Gallery must remain a normal DOM section without blur.
+
+Hosting
+
+The page currently runs locally (file://), which may exaggerate perceived lag.
+
+Layout and performance decisions are made to remain smooth even when hosted.
+
+Unresolved / Optional Follow-Ups
+
+Further performance enhancements (not implemented yet)
+
+Batch-loading thumbnails (e.g., 12 at a time with “Load More”).
+
+Auto-pausing slideshow during scroll.
+
+Optional removal or reduction of blur on low-power devices.
+
+Future scalability
+
+Increasing image count requires only updating the image count constant,
+but gallery size/performance may need reassessment at higher totals.
+
+
+Durable Decisions & Conclusions
+
+All website images have been successfully converted to WebP.
+
+WebP is the correct and preferred format for all web-delivered images due to large original file sizes (8–13 MB per image).
+
+Converting images was necessary to address scroll lag, memory pressure, and rendering freezes, not just hosting or deployment issues.
+
+Original high-resolution images should be preserved separately for print, proofs, and future design work (not deleted).
+
+Logos and UI graphics may remain PNG/SVG if appropriate; photographic images should be WebP.
+
+🧩 Features / Implementation State
+
+Portfolio slider JavaScript already supports WebP.
+
+Image-heavy sections (portfolio, hero banners, backgrounds, service cards) are now expected to use .webp.
+
+WebP conversion reduces total image payload dramatically and improves:
+
+Scroll smoothness
+
+Initial load time
+
+Browser memory usage
+
+Thumbnail + full-size image strategy is recommended for best performance (thumbs for scrolling, full image on click).
+
+⚠️ Constraints & Required Follow-Ups
+
+Any hard-coded image paths in HTML or CSS that referenced .jpg or .png must be updated to .webp.
+
+CSS background images and inline style="background-image" attributes require manual updates.
+
+Portfolio JS extension list can be simplified to WebP only for efficiency (optional optimization).
+
+❓ Unresolved / Optional Next Steps
+
+Decide whether to:
+
+Implement a dedicated thumbnails folder and adjust portfolio JS accordingly.
+
+Further reduce image dimensions (max width) now that format conversion is complete.
+
+Verify that all pages visually load correctly after path updates (no broken backgrounds or missing images).
+
+Future hosting consideration: ensure server serves WebP with correct MIME type (most modern hosts do by default).
+
+
+Admin Portal Architecture
+
+Flask + SQLite (crown_portal.db)
+
+Deployed as an internal/admin-only system (demo-ready, prod later)
+
+Designed to be hosted on Raspberry Pi and exposed via Cloudflare Tunnel
+
+Database path is fixed to project root (avoid instance/ DB duplication)
+
+User Roles
+
+Two roles:
+
+Admin: full access
+
+Staff: limited access
+
+Admin-only permissions:
+
+Create/delete users
+
+Reset user passwords
+
+View job audit logs
+
+Safety rules:
+
+Admin cannot delete themselves
+
+Admin cannot delete the last remaining admin
+
+Authentication
+
+Username/password auth using hashed passwords
+
+Initial admin seeded from .env on /init-db
+
+Staff accounts created by admin via UI
+
+Date Standards
+
+All displayed dates use MM-DD-YYYY
+
+Two separate job dates:
+
+Date Received (manual, editable)
+
+Date Created (automatic system timestamp)
+
+PO Number Format
+
+Format: MMDDYY-##
+
+Based on Date Received
+
+Sequence resets per day
+
+Auto-expands past 99 (no duplicate POs)
+
+Features Built
+Job Management
+
+Job fields finalized:
+
+Customer Name
+
+Business Name
+
+Phone Number
+
+Email Address
+
+Job Title
+
+Job Summary
+
+Job Details / Notes
+
+Estimated Quote
+
+Date Received
+
+Date Created (auto)
+
+Job display name:
+
+Job Title • Date Received • PO
+
+
+Staff can:
+
+Create jobs
+
+Edit jobs
+
+Update job progress
+
+Job Progress System
+
+Fixed stage pipeline:
+
+Received
+
+Design
+
+Proof
+
+Production
+
+Install / Pickup
+
+Completed
+
+Visual segmented progress bar:
+
+Shown on dashboard and job view
+
+Not shown on job creation screen
+
+When stage = Completed:
+
+Job auto-moves to Completed list
+
+Audit Logging (Admin Only)
+
+Per-job audit log records:
+
+Job creation
+
+Field edits (diff-based)
+
+Stage changes
+
+Each log entry includes:
+
+Timestamp
+
+Acting username
+
+Action type
+
+Details
+
+Logs are visible only to Admin users on Job View
+
+User Management
+
+Admin UI for:
+
+Creating users
+
+Resetting passwords
+
+Deleting users
+
+Password resets are manual (admin sets new password)
+
+Constraints
+
+SQLite used intentionally (simple, Pi-friendly)
+
+No automatic schema migrations:
+
+DB must be rebuilt or manually migrated when models change
+
+Staff accounts:
+
+Cannot view audit logs
+
+Cannot manage users
+
+PO sequencing assumes:
+
+≤99 jobs per received date (safe overflow handled, but rare)
+
+Unresolved / Future Improvements
+
+Disable or remove /init-db route in production
+
+Add optional features (not yet implemented):
+
+Assigned-to staff field on jobs
+
+Per-user job ownership restrictions
+
+Soft-disable users instead of delete
+
+Forced password reset on first login
+
+Export / reporting tools
+
+Production hardening:
+
+Gunicorn + Nginx
+
+Cloudflare access rules
+
+Optional IP allowlist
+
+Stronger password policy
+
+
+Master Context Summary — Customer Orders → Admin Portal + Email
+
+Durable Decisions
+
+Customer-facing order forms will automatically create jobs in the Admin Portal without manual re-entry.
+
+Each customer-submitted order will also trigger an email notification (initially dummy, later real) to the business email (e.g., thad@crowngfx.com).
+
+New jobs created from customer submissions will be clearly marked in Admin with a “NEW / !” indicator until reviewed.
+
+The Admin Portal and Customer Order system will share the same backend and database.
+
+Features Defined / Built (MVP Design)
+
+Backend endpoint (e.g., POST /api/orders) to receive customer orders.
+
+Automatic job creation with:
+
+PO number format: MMDDYY-## (daily sequence reset).
+
+Status: New
+
+Flag: is_new = 1
+
+Date received + date created.
+
+Dummy email system for testing:
+
+Email content printed to server console.
+
+Email saved to an email_outbox table for Admin viewing.
+
+Admin-side visibility:
+
+New jobs appear immediately.
+
+Countable “New Orders” indicator (badge-ready).
+
+Ability to later mark jobs as reviewed (clears is_new).
+
+Constraints
+
+Static HTML alone (e.g., mailto: forms) is not sufficient for reliable email delivery or job creation.
+
+File uploads and real email delivery require a server-side backend.
+
+Customer orders must be submitted via POST to a backend endpoint.
+
+Dummy email mode is required first to validate flow before enabling real email services.
+
+Unresolved / To Be Implemented
+
+Integration of the dummy order submission with the actual Crown customer order pages.
+
+Admin UI updates:
+
+Visual “!” indicator in job list.
+
+“New Orders” filter or badge in navigation.
+
+“Mark Reviewed” action.
+
+Decision on real email provider (SendGrid, Mailgun, SMTP, etc.).
+
+File upload handling (storage location + admin access).
+
+Final production deployment (Pi vs hosted backend, Cloudflare integration).
+
+Status
+
+Architecture and flow confirmed.
+
+Dummy email + auto-job-creation approach approved for first live test.
+
+Ready for implementation when working locally.
+
+
+\

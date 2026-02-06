@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - CrownGFX Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<main class="page">
+  <div class="container" style="max-width:520px;">
+    <div class="panel">
+      <div class="h1">Login</div>
+      <p class="sub">Admin and Staff accounts supported.</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form class="form" method="post" style="margin-top:14px;">
+        <div class="field">
+          <label>Username</label>
+          <input name="username" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" name="password" autocomplete="current-password" required />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

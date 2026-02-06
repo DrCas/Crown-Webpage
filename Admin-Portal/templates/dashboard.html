@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% set active = "dashboard" %}
+{% block content %}
+
+<div class="panel">
+  <div class="h1">Active Jobs</div>
+  <p class="sub">Jobs that are currently in progress (not completed).</p>
+
+  <div class="btnrow">
+    <a class="btn btn-primary" href="{{ url_for('job_new') }}">+ Create New Job</a>
+    <a class="btn btn-ghost" href="{{ url_for('completed_jobs') }}">View Completed</a>
+  </div>
+</div>
+
+<div class="grid" style="margin-top:16px;">
+  {% if not jobs %}
+    <div class="panel">
+      <div class="h1">No active jobs</div>
+      <p class="sub">Create a new job to get started.</p>
+    </div>
+  {% endif %}
+
+  {% for job in jobs %}
+    <div class="card">
+      <div class="cardtop">
+        <div>
+          <div class="title">
+            <a href="{{ url_for('job_view', job_id=job.id) }}">{{ job_display_name(job) }}</a>
+          </div>
+          <div class="meta">
+            {{ job.customer_name }}{% if job.business_name %} • {{ job.business_name }}{% endif %}
+            • Stage: <b>{{ job.stage }}</b>
+          </div>
+          <div class="meta">
+            Received: <b>{{ job.received_date|mmddyyyy_date }}</b> • Created: <b>{{ job.created_at|mmddyyyy_dt }}</b>
+          </div>
+        </div>
+        <a class="btn btn-ghost" href="{{ url_for('job_view', job_id=job.id) }}">Open</a>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-labels">
+          {% for s in STAGES %}
+            <span title="{{ s }}">{{ s }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="progress-bar">
+          {% set idx = stage_index(job) %}
+          {% for s in STAGES %}
+            {% set i = loop.index0 %}
+            <div class="seg
+              {% if i < idx %}done{% elif i == idx %}current{% else %}pending{% endif %}
+            "></div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="kv">
+        <div class="item">
+          <div class="k">Phone</div>
+          <div class="v">{{ job.phone_number or "—" }}</div>
+        </div>
+        <div class="item">
+          <div class="k">Email</div>
+          <div class="v">{{ job.email_address or "—" }}</div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

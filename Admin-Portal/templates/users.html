@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% set active = "users" %}
+{% block content %}
+
+<div class="panel">
+  <div class="h1">Users (Admin Only)</div>
+  <p class="sub">Create staff accounts, reset passwords, and remove users.</p>
+
+  <div class="btnrow">
+    <a class="btn btn-primary" href="{{ url_for('user_new') }}">+ New User</a>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px; overflow:auto;">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th style="width:260px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td><b>{{ u.role }}</b></td>
+          <td>
+            <a class="btn btn-ghost" href="{{ url_for('user_reset_password', user_id=u.id) }}">
+              Reset Password
+            </a>
+
+            <form method="post"
+                  action="{{ url_for('user_delete', user_id=u.id) }}"
+                  style="display:inline;"
+                  onsubmit="return confirm('Delete user {{ u.username }}? This cannot be undone.');">
+              <button class="btn btn-ghost" type="submit">Delete</button>
+            </form>
+
+            {% if u.id == current_user.id %}
+              <span class="small" style="margin-left:8px;">(you)</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="small" style="margin-top:10px;">
+    Safety rules: you cannot delete your own account, and you cannot delete the last admin.
+  </p>
+</div>
+
+{% endblock %}

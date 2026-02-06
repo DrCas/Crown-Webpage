@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set active = "completed" %}
+{% block content %}
+
+<div class="panel">
+  <div class="h1">Completed Jobs</div>
+  <p class="sub">Archive for lookup / reprints / reference.</p>
+</div>
+
+<div class="panel" style="margin-top:16px; overflow:auto;">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Job</th>
+        <th>Customer</th>
+        <th>Business</th>
+        <th>Date Received</th>
+        <th>Date Created</th>
+        <th>Quote</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if not jobs %}
+        <tr><td colspan="7">No completed jobs yet.</td></tr>
+      {% endif %}
+
+      {% for job in jobs %}
+        <tr>
+          <td><a href="{{ url_for('job_view', job_id=job.id) }}">{{ job_display_name(job) }}</a></td>
+          <td>{{ job.customer_name }}</td>
+          <td>{{ job.business_name or "—" }}</td>
+          <td>{{ job.received_date|mmddyyyy_date }}</td>
+          <td>{{ job.created_at|mmddyyyy_dt }}</td>
+          <td>
+            {% if job.quote_amount is not none %}
+              ${{ "%.2f"|format(job.quote_amount) }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td><b>{{ job.stage }}</b></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio - Crown Graphics</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo-link">
+      <img src="images/HeaderLogo.png" alt="Crown Graphics Logo" class="site-logo">
+    </a>
+
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="portfolio.html" class="active">Portfolio</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Page Banner -->
+  <section class="page-banner" style="background-image: url('images/Front Wall Wrap.jpg');">
+    <h2>Portfolio</h2>
+  </section>
+
+  <!-- Portfolio -->
+  <section class="container">
+
+    <div class="portfolio-inner">
+
+      <!-- Slideshow stays glass -->
+      <div class="glass">
+        <div class="slider slider-autoplay" id="portfolioSlider" aria-label="Portfolio slideshow">
+          <div class="slides" id="slidesTrack"></div>
+        </div>
+
+        <p id="sliderStatus" class="slider-status"></p>
+      </div>
+
+      <!-- Gallery is OUTSIDE glass -->
+      <div class="portfolio-gallery-wrapper" aria-label="Portfolio gallery section">
+        <h3 class="portfolio-gallery-title">Gallery</h3>
+        <div class="portfolio-gallery" id="portfolioGallery" aria-label="Portfolio gallery thumbnails"></div>
+      </div>
+
+    </div>
+
+  </section>
+</main>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>&copy; <span id="year"></span> Crown Graphics | All Rights Reserved</p>
+  </div>
+</footer>
+
+<!-- Lightbox -->
+<div class="lightbox hidden" id="lightbox" aria-hidden="true">
+  <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+  <div class="lightbox-content" role="dialog" aria-modal="true" aria-label="Image viewer">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Close">&times;</button>
+    <img id="lightboxImg" alt="Full size portfolio image" />
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+  </div>
+</div>
+
+<!-- Script -->
+<script src="portfolio.js"></script>
+
+<!-- Auto year -->
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

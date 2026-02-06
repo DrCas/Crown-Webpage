@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% set active = "new" %}
+{% block content %}
+
+<div class="panel">
+  <div class="h1">Create New Job</div>
+  <p class="sub">
+    <b>Date Received</b> is editable (MM-DD-YYYY). <b>Date Created</b> is automatic.
+    PO becomes <b>MMDDYY-##</b> based on Date Received.
+  </p>
+
+  <form class="form" method="post" style="margin-top:14px; max-width:900px;">
+    <div class="field">
+      <label>Customer Name *</label>
+      <input name="customer_name" required />
+    </div>
+
+    <div class="field">
+      <label>Business Name</label>
+      <input name="business_name" />
+    </div>
+
+    <div class="field">
+      <label>Date Received (MM-DD-YYYY)</label>
+      <input name="received_date" placeholder="02-02-2026" />
+    </div>
+
+    <div class="field">
+      <label>Phone Number</label>
+      <input name="phone_number" />
+    </div>
+
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" name="email_address" />
+    </div>
+
+    <div class="field">
+      <label>Job Title *</label>
+      <input name="job_title" placeholder="Example: Silverado Door Logos" required />
+    </div>
+
+    <div class="field">
+      <label>Job Summary</label>
+      <input name="job_summary" placeholder="Brief description (1 sentence)" />
+    </div>
+
+    <div class="field">
+      <label>Job Details</label>
+      <textarea name="job_details" placeholder="Full notes, materials, sizes, deadlines, etc."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Estimated Quote ($)</label>
+      <input type="number" step="0.01" name="quote_amount" />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Create Job</button>
+  </form>
+</div>
+
+{% endblock %}

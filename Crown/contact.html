@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - Crown Graphics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo-link">
+      <img src="images/HeaderLogo.png" alt="Crown Graphics Logo" class="site-logo">
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-banner" style="background-image: url('images/Front Wall Wrap.jpg');">
+    <h2>Contact</h2>
+  </section>
+
+  <section class="container readable contact-layout">
+    <div class="contact-intro glass">
+    <p>Have a question or need a quote? Fill out the form below and we’ll get back to you.</p>
+    </div>
+
+    <div class="contact-grid">
+      <!-- LEFT: FORM -->
+      <form action="mailto:thad@crowngfx.com" method="post" enctype="text/plain" class="contact-form glass">
+        <label>Name</label>
+        <input type="text" name="name" required />
+
+        <label>Email</label>
+        <input type="email" name="email" required />
+
+        <label>Message</label>
+        <textarea name="message" rows="6" required></textarea>
+
+        <button type="submit">Send Message</button>
+      </form>
+
+      <!-- RIGHT: MAP + INFO -->
+      <aside class="contact-info glass">
+        <h3>Find Us</h3>
+
+        <div class="map-embed">
+          <iframe
+            title="Crown Graphics Location"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=13766%20Redwood%20St%2C%20Chino%2C%20CA%2091710&output=embed">
+          </iframe>
+        </div>
+
+        <div class="info-block">
+          <h4>Address</h4>
+          <p><strong>Crown Graphics</strong></p>
+          <p>13766 Redwood St<br>Chino, CA 91710</p>
+          <p>
+            <a href="https://www.google.com/maps/search/?api=1&query=13766+Redwood+St,+Chino,+CA+91710"
+               target="_blank" rel="noopener">
+              Get Directions →
+            </a>
+          </p>
+        </div>
+
+        <div class="info-block">
+          <h4>Hours</h4>
+          <p>Mon–Fri: 8:00 AM – 4:30 PM</p>
+          <p>Sat–Sun: Closed</p>
+        </div>
+
+        <div class="info-block">
+          <h4>Phone</h4>
+          <p><a href="tel:+19095910377">(909) 591-0377</a></p>
+        </div>
+
+        <div class="info-block">
+          <h4>Email</h4>
+          <p><a href="mailto:thad@crowngfx.com">thad@crowngfx.com</a></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>&copy; <span id="year"></span> Crown Graphics | All Rights Reserved</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

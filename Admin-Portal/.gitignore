@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env
+
+# Runtime data
+instance/
+
+# Website images (inside Crown/)
+Crown/images/
+Crown/images webp/
+
+#database
+*.db

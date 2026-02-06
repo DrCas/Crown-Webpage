@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ title or "CrownGFX Admin Portal" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">
+      <span>CROWNGFX</span>
+      <span class="badge">ADMIN</span>
+    </div>
+
+    <nav class="navlinks">
+      <a href="{{ url_for('dashboard') }}" class="{% if active=='dashboard' %}active{% endif %}">Active Jobs</a>
+      <a href="{{ url_for('completed_jobs') }}" class="{% if active=='completed' %}active{% endif %}">Completed</a>
+      <a href="{{ url_for('job_new') }}" class="{% if active=='new' %}active{% endif %}">New Job</a>
+
+      {% if current_user.is_authenticated and current_user.is_admin() %}
+        <a href="{{ url_for('users') }}" class="{% if active=='users' %}active{% endif %}">Users</a>
+      {% endif %}
+
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <div class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+</body>
+</html>

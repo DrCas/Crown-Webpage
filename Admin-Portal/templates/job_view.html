@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="panel">
+  <div class="h1">{{ job_display_name(job) }}</div>
+  <p class="sub">
+    Customer: <b>{{ job.customer_name }}</b>
+    {% if job.business_name %} • Business: <b>{{ job.business_name }}</b>{% endif %}
+    • Received: <b>{{ job.received_date|mmddyyyy_date }}</b>
+    • Created: <b>{{ job.created_at|mmddyyyy_dt }}</b>
+  </p>
+
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      {% for s in STAGES %}
+        <span title="{{ s }}">{{ s }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="progress-bar">
+      {% set idx = stage_index(job) %}
+      {% for s in STAGES %}
+        {% set i = loop.index0 %}
+        <div class="seg
+          {% if i < idx %}done{% elif i == idx %}current{% else %}pending{% endif %}
+        "></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <form method="post" class="btnrow" style="margin-top:14px;">
+    <input type="hidden" name="action" value="update_stage" />
+    <select name="stage" class="btn btn-ghost" style="padding: 11px 14px;">
+      {% for s in STAGES %}
+        <option value="{{ s }}" {% if s == job.stage %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit">Update Progress</button>
+  </form>
+</div>
+
+<div class="grid grid-2" style="margin-top:16px;">
+  <div class="panel">
+    <div class="h1">Job Details</div>
+
+    <div class="kv">
+      <div class="item">
+        <div class="k">Phone</div>
+        <div class="v">{{ job.phone_number or "—" }}</div>
+      </div>
+      <div class="item">
+        <div class="k">Email</div>
+        <div class="v">{{ job.email_address or "—" }}</div>
+      </div>
+      <div class="item">
+        <div class="k">PO</div>
+        <div class="v"><b>{{ job.po_date_key }}-{{ "%02d"|format(job.po_seq) }}</b></div>
+      </div>
+      <div class="item">
+        <div class="k">Current Stage</div>
+        <div class="v"><b>{{ job.stage }}</b></div>
+      </div>
+      <div class="item">
+        <div class="k">Quote</div>
+        <div class="v">
+          {% if job.quote_amount is not none %}
+            ${{ "%.2f"|format(job.quote_amount) }}
+          {% else %}
+            —
+          {% endif %}
+        </div>
+      </div>
+      <div class="item">
+        <div class="k">Date Received</div>
+        <div class="v"><b>{{ job.received_date|mmddyyyy_date }}</b></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">Summary</div>
+      <div style="margin-top:6px;">{{ job.job_summary or "—" }}</div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">Details / Notes</div>
+      <div style="margin-top:6px; white-space:pre-wrap;">{{ job.job_details or "—" }}</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="h1">Edit Job</div>
+    <p class="sub">Staff can update any field. (Customer Name + Job Title required.)</p>
+
+    <form class="form" method="post" style="margin-top:14px;">
+      <input type="hidden" name="action" value="save_edits" />
+
+      <div class="field">
+        <label>Customer Name *</label>
+        <input name="customer_name" value="{{ job.customer_name }}" required />
+      </div>
+
+      <div class="field">
+        <label>Business Name</label>
+        <input name="business_name" value="{{ job.business_name or '' }}" />
+      </div>
+
+      <div class="field">
+        <label>Date Received (MM-DD-YYYY)</label>
+        <input name="received_date" value="{{ job.received_date|mmddyyyy_date }}" />
+      </div>
+
+      <div class="field">
+        <label>Phone Number</label>
+        <input name="phone_number" value="{{ job.phone_number or '' }}" />
+      </div>
+
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" name="email_address" value="{{ job.email_address or '' }}" />
+      </div>
+
+      <div class="field">
+        <label>Job Title *</label>
+        <input name="job_title" value="{{ job.job_title }}" required />
+      </div>
+
+      <div class="field">
+        <label>Job Summary</label>
+        <input name="job_summary" value="{{ job.job_summary or '' }}" />
+      </div>
+
+      <div class="field">
+        <label>Job Details</label>
+        <textarea name="job_details">{{ job.job_details or '' }}</textarea>
+      </div>
+
+      <div class="field">
+        <label>Estimated Quote ($)</label>
+        <input type="number" step="0.01" name="quote_amount"
+               value="{% if job.quote_amount is not none %}{{ '%.2f'|format(job.quote_amount) }}{% endif %}" />
+      </div>
+
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+{% if current_user.is_admin() %}
+  <div class="panel" style="margin-top:16px;">
+    <div class="h1">Audit Log (Admin Only)</div>
+    <p class="sub">Tracks who changed progress/fields and when.</p>
+
+    <div style="overflow:auto; margin-top:12px;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if not logs %}
+            <tr><td colspan="4">No log entries yet.</td></tr>
+          {% endif %}
+          {% for entry in logs %}
+            <tr>
+              <td>{{ entry.timestamp|mmddyyyy_dt }}</td>
+              <td>{{ entry.actor_username or "—" }}</td>
+              <td><b>{{ entry.action }}</b></td>
+              <td>{{ entry.details or "—" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}
