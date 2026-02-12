@@ -1,8 +1,12 @@
 (() => {
   // ====== CONFIG ======
   // IMPORTANT: This assumes your files are named exactly:
-  // images/Collection/Slides/slide-1.jpg ... slide-44.jpg
+  // fullImages/Collection/Slides/slide-1.jpg ... slide-44.jpg
   const FOLDER = "images/Collection/Slides/";
+  // If you have smaller thumbnail copies, put them in a separate folder
+  // with the SAME filenames (slide-1.webp, slide-2.webp, ...)
+  // Example: images/Collection/Thumbs/slide-1.webp
+  const THUMB_FOLDER = "images/Collection/Thumbs/";
   const BASENAME = "slide-";
   const EXT = "webp";          // Change to "png" if your slides are png
   const COUNT = 44;           // You said you currently have 44 images
@@ -20,13 +24,15 @@
   const lightboxBackdrop = document.getElementById("lightboxBackdrop");
 
   // ====== STATE ======
-  const images = Array.from({ length: COUNT }, (_, i) => `${FOLDER}${BASENAME}${i + 1}.${EXT}`);
+  const fullImages = Array.from({ length: COUNT }, (_, i) => `${FOLDER}${BASENAME}${i + 1}.${EXT}`);
+  // Thumbnails: uses THUMB_FOLDER; if you don’t have thumbs yet, set THUMB_FOLDER = FOLDER
+  const thumbImages = Array.from({ length: COUNT }, (_, i) => `${THUMB_FOLDER}${BASENAME}${i + 1}.${EXT}`);
   let idx = 0;
   let autoplay = null;
 
   // ====== HELPERS ======
   function updateStatus() {
-    statusEl.textContent = images.length ? `${idx + 1} / ${images.length}` : "";
+    statusEl.textContent = fullImages.length ? `${idx + 1} / ${fullImages.length}` : "";
   }
 
   function openLightbox(url, label) {
@@ -50,7 +56,7 @@
     fig.className = "slide active";
 
     const img = document.createElement("img");
-    img.src = images[idx];
+    img.src = fullImages[idx];
     img.alt = `Portfolio image ${idx + 1}`;
     img.draggable = false;
 
@@ -67,7 +73,7 @@
   function startAutoplay() {
     stopAutoplay();
     autoplay = setInterval(() => {
-      idx = (idx + 1) % images.length;
+      idx = (idx + 1) % fullImages.length;
       renderSlide();
     }, AUTOPLAY_MS);
   }
@@ -84,7 +90,7 @@
     // Use a document fragment to avoid layout thrash
     const frag = document.createDocumentFragment();
 
-    images.forEach((url, i) => {
+    fullImages.forEach((url, i) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "gallery-thumb";
@@ -98,12 +104,12 @@
       img.decoding = "async";
 
       // We'll set src via IntersectionObserver for even smoother scrolling
-      img.dataset.src = url;
+      img.dataset.src = thumbImages[i] || url;
 
       btn.appendChild(img);
 
       btn.addEventListener("click", () => {
-        openLightbox(url, `Image ${i + 1} / ${images.length}`);
+        openLightbox(url, `Image ${i + 1} / ${fullImages.length}`);
       });
 
       frag.appendChild(btn);
@@ -144,7 +150,7 @@
   });
 
   // ====== INIT ======
-  if (!images.length) {
+  if (!fullImages.length) {
     statusEl.textContent = "No images found.";
     return;
   }
