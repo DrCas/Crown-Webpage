@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 
-from models import db, Order
+
 from pdf_utils import build_order_pdf_bytes
 from email_utils import send_order_emails
 
