@@ -4,33 +4,121 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quick Order - Crown GFX</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-<style>
-.order-box {
-  background: rgba(255,255,255,0.92);
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-  margin-bottom: 2rem;
-}
-.order-type-buttons button {
-  background: var(--color-gold);
-  color: #000;
-  padding: 0.7rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-right: 1rem;
-}
-.hidden { display: none; }
-</style>
-</head>
-<body>
 
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* Quick Order specific (kept inline so you don't have to touch styles.css yet) */
+    .order-box{
+      background: rgba(255,255,255,0.92);
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      margin-bottom: 2rem;
+    }
+    .order-type-buttons button{
+      background: var(--color-gold);
+      color: #000;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 1rem;
+    }
+    .hidden{ display:none; }
+
+    form .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 18px;
+      margin-top: 0.75rem;
+    }
+    form label{ font-weight: 600; }
+    form input, form select, form textarea{
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      font-family: inherit;
+      font-size: 1rem;
+      background: #fff;
+    }
+    form textarea{ resize: vertical; min-height: 110px; }
+
+    .section-title{
+      margin-top: 1.2rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(0,0,0,0.12);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .full{ grid-column: 1 / -1; }
+
+    .items-table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.12);
+    }
+    .items-table th, .items-table td{
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 10px;
+      vertical-align: top;
+    }
+    .items-table th{ background: rgba(0,0,0,0.04); text-align: left; }
+    .items-table td input, .items-table td textarea{
+      padding: 0.55rem;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.18);
+    }
+    .items-table td textarea{ min-height: 52px; }
+
+    .row-actions{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-secondary{
+      background: rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.15);
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .notice{
+      background: rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.12);
+      padding: 0.9rem;
+      border-radius: 10px;
+      margin-top: 0.9rem;
+    }
+    .agree{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      margin-top: 0.9rem;
+    }
+    .agree input{ width:auto; margin-top: 4px; }
+
+    @media (max-width: 900px){
+      form .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
 <header>
   <div class="container nav">
     <a href="index.html" class="logo-link">
@@ -56,47 +144,123 @@
   <div class="order-box">
     <h2>Select Order Type</h2>
     <div class="order-type-buttons">
-      <button id="quickPrintBtn">Quick Print Items</button>
-      <button id="largeProjectBtn">Large Projects / Wraps</button>
+      <button id="quickPrintBtn" type="button">Quick Print Items</button>
+      <button id="largeProjectBtn" type="button">Large Projects / Wraps</button>
+    </div>
+
+    <div class="notice">
+      <strong>Heads up:</strong> Pricing is not shown on this form. We’ll review your details, confirm any missing info,
+      then send a final quote/invoice.
     </div>
   </div>
 
   <!-- QUICK PRINT ORDER FORM -->
   <div id="quickPrintForm" class="order-box hidden">
     <h2>Quick Print Order</h2>
-    <form>
-      <label>Name</label>
-      <input type="text" required>
 
-      <label>Email</label>
-      <input type="email" required>
+    <form id="quickOrderForm">
+      <div class="section-title">Customer Information</div>
+      <div class="grid">
+        <div>
+          <label for="q_name">Name *</label>
+          <input id="q_name" name="name" type="text" required>
+        </div>
+        <div>
+          <label for="q_company">Company (optional)</label>
+          <input id="q_company" name="company" type="text">
+        </div>
 
-      <label>Phone</label>
-      <input type="text" required>
+        <div class="full">
+          <label for="q_address">Address</label>
+          <input id="q_address" name="address" type="text">
+        </div>
 
-      <label>Product Type</label>
-      <select id="productType">
-        <option value="printed">Printed Decals</option>
-        <option value="diecut">Die-Cut (1 Color)</option>
-        <option value="banner">Banner</option>
-        <option value="poster">Poster</option>
-      </select>
+        <div>
+          <label for="q_city">City</label>
+          <input id="q_city" name="city" type="text">
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 14px 18px;">
+          <div>
+            <label for="q_state">State</label>
+            <input id="q_state" name="state" type="text" value="CA">
+          </div>
+          <div>
+            <label for="q_zip">Zip</label>
+            <input id="q_zip" name="zip" type="text">
+          </div>
+        </div>
 
-      <label>Width (inches)</label>
-      <input type="number" id="widthIn" required>
+        <div>
+          <label for="q_phone">Phone *</label>
+          <input id="q_phone" name="phone" type="text" required>
+        </div>
+        <div>
+          <label for="q_cell">Cell (optional)</label>
+          <input id="q_cell" name="cell" type="text">
+        </div>
 
-      <label>Height (inches)</label>
-      <input type="number" id="heightIn" required>
+        <div class="full">
+          <label for="q_email">Email *</label>
+          <input id="q_email" name="email" type="email" required>
+        </div>
+      </div>
 
-      <label>Quantity</label>
-      <input type="number" id="qty" required>
+      <div class="section-title">Order Details</div>
+      <div class="grid">
+        <div>
+          <label for="q_type">Requested Item Type *</label>
+          <select id="q_type" name="requested_item_type" required>
+            <option value="Printed Decals">Printed Decals</option>
+            <option value="Die-Cut (1 Color)">Die-Cut (1 Color)</option>
+            <option value="Banner">Banner</option>
+            <option value="Poster">Poster</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="q_needed_by">Needed By (optional)</label>
+          <input id="q_needed_by" name="needed_by" type="date">
+        </div>
 
-      <label>Upload Artwork</label>
-      <input type="file">
+        <div class="full">
+          <label for="q_summary">Summary of Work to be Done</label>
+          <textarea id="q_summary" name="summary" placeholder="Tell us what you need, sizing/finishing, where it will be installed, etc."></textarea>
+        </div>
+      </div>
 
-      <div class="calc-box">
-        <button type="button" id="calcPriceBtn">Calculate Price</button>
-        <p id="priceOutput"></p>
+      <div class="section-title">Requested Items</div>
+      <table class="items-table" aria-label="Requested items table">
+        <thead>
+          <tr>
+            <th style="width: 90px;">Qty</th>
+            <th>Description of Work</th>
+            <th style="width: 210px;">Material (optional)</th>
+            <th style="width: 260px;">Notes (optional)</th>
+            <th style="width: 70px;">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody id="q_itemsBody"></tbody>
+      </table>
+
+      <div class="row-actions">
+        <button class="btn-secondary" type="button" id="q_addRow">+ Add Item</button>
+        <button class="btn-secondary" type="button" id="q_clearRows">Clear Items</button>
+      </div>
+
+      <div class="section-title">Files</div>
+      <div class="grid">
+        <div class="full">
+          <label for="q_files">Upload Artwork / Files (optional)</label>
+          <input id="q_files" name="files" type="file" multiple>
+        </div>
+      </div>
+
+      <div class="agree">
+        <input id="q_agree" name="agree_terms" type="checkbox" required>
+        <label for="q_agree">
+          I understand this submission is a request and may require confirmation (final pricing/requirements may change).
+          <a href="terms.html">View terms</a>
+        </label>
       </div>
 
       <button type="submit">Submit Order</button>
@@ -105,40 +269,208 @@
 
   <!-- LARGE PROJECT FORM -->
   <div id="largeProjectForm" class="order-box hidden">
-    <h2>Large Project / Wrap Order</h2>
-    <form>
-      <label>Name</label>
-      <input type="text" required>
+    <h2>Large Project / Wrap Request</h2>
 
-      <label>Company (optional)</label>
-      <input type="text">
+    <form id="largeOrderForm">
+      <div class="section-title">Customer Information</div>
+      <div class="grid">
+        <div>
+          <label for="l_name">Name *</label>
+          <input id="l_name" name="name" type="text" required>
+        </div>
+        <div>
+          <label for="l_company">Company (optional)</label>
+          <input id="l_company" name="company" type="text">
+        </div>
 
-      <label>Email</label>
-      <input type="email" required>
+        <div class="full">
+          <label for="l_email">Email *</label>
+          <input id="l_email" name="email" type="email" required>
+        </div>
 
-      <label>Phone</label>
-      <input type="text" required>
+        <div>
+          <label for="l_phone">Phone *</label>
+          <input id="l_phone" name="phone" type="text" required>
+        </div>
+        <div>
+          <label for="l_best_contact">Best Contact Method</label>
+          <select id="l_best_contact" name="best_contact_method">
+            <option value="Phone">Phone</option>
+            <option value="Email" selected>Email</option>
+            <option value="Text">Text</option>
+          </select>
+        </div>
+      </div>
 
-      <label>Project Type</label>
-      <select>
-        <option>Full Wrap</option>
-        <option>Partial Wrap</option>
-        <option>Fleet Project</option>
-        <option>Wall Wrap</option>
-        <option>Custom Project</option>
-      </select>
+      <div class="section-title">Project Overview</div>
+      <div class="grid">
+        <div>
+          <label for="l_project_type">Project Type *</label>
+          <select id="l_project_type" name="project_type" required>
+            <option value="Full Wrap">Full Wrap</option>
+            <option value="Partial Wrap">Partial Wrap</option>
+            <option value="Fleet Project">Fleet Project</option>
+            <option value="Wall Wrap">Wall Wrap</option>
+            <option value="Window Perf">Window Perf</option>
+            <option value="Sign / Panel">Sign / Panel</option>
+            <option value="Custom Project">Custom Project</option>
+          </select>
+        </div>
+        <div>
+          <label for="l_needed_by">Target Deadline (optional)</label>
+          <input id="l_needed_by" name="needed_by" type="date">
+        </div>
 
-      <label>Year / Make / Model (if applicable)</label>
-      <input type="text">
+        <div>
+          <label for="l_service">What do you need from us? *</label>
+          <select id="l_service" name="service_needed" required>
+            <option value="Print + Install" selected>Print + Install</option>
+            <option value="Print Only">Print Only</option>
+            <option value="Install Only">Install Only</option>
+            <option value="Design + Print + Install">Design + Print + Install</option>
+          </select>
+        </div>
+        <div>
+          <label for="l_design_ready">Design Status</label>
+          <select id="l_design_ready" name="design_status">
+            <option value="Print-ready files">Print-ready files</option>
+            <option value="Needs design help" selected>Needs design help</option>
+            <option value="Has logo/brand assets only">Has logo/brand assets only</option>
+          </select>
+        </div>
 
-      <label>Project Details</label>
-      <textarea rows="5"></textarea>
+        <div class="full">
+          <label for="l_summary">Describe the project *</label>
+          <textarea id="l_summary" name="summary" required placeholder="What is it, where is it going, how many units/surfaces, any special notes?"></textarea>
+        </div>
+      </div>
 
-      <label>Upload Photos / Files</label>
-      <input type="file" multiple>
+      <div class="section-title">Install / Job Location</div>
+      <div class="grid">
+        <div class="full">
+          <label for="l_install_address">Install Address (if different)</label>
+          <input id="l_install_address" name="install_address" type="text" placeholder="Street address">
+        </div>
+        <div>
+          <label for="l_install_city">City</label>
+          <input id="l_install_city" name="install_city" type="text">
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 14px 18px;">
+          <div>
+            <label for="l_install_state">State</label>
+            <input id="l_install_state" name="install_state" type="text" value="CA">
+          </div>
+          <div>
+            <label for="l_install_zip">Zip</label>
+            <input id="l_install_zip" name="install_zip" type="text">
+          </div>
+        </div>
 
-      <div class="calc-box">
-        <p>Deposit Required: $250 (non‑refundable)</p>
+        <div>
+          <label for="l_site_visit">Site Visit Needed?</label>
+          <select id="l_site_visit" name="site_visit_needed">
+            <option value="Not sure" selected>Not sure</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div>
+          <label for="l_install_hours">Install Constraints (optional)</label>
+          <input id="l_install_hours" name="install_constraints" type="text" placeholder="Hours, loading dock, access, etc.">
+        </div>
+      </div>
+
+      <div class="section-title">Vehicle Details (if applicable)</div>
+      <div class="grid">
+        <div>
+          <label for="l_year">Year</label>
+          <input id="l_year" name="year" type="text" placeholder="2020">
+        </div>
+        <div>
+          <label for="l_make">Make</label>
+          <input id="l_make" name="make" type="text">
+        </div>
+        <div>
+          <label for="l_model">Model</label>
+          <input id="l_model" name="model" type="text">
+        </div>
+        <div>
+          <label for="l_qty_units">How many vehicles/units?</label>
+          <input id="l_qty_units" name="qty_units" type="number" min="1" placeholder="1">
+        </div>
+
+        <div>
+          <label for="l_vin">VIN (optional)</label>
+          <input id="l_vin" name="vin" type="text">
+        </div>
+        <div>
+          <label for="l_unit">Unit # (optional)</label>
+          <input id="l_unit" name="unit_number" type="text">
+        </div>
+
+        <div class="full">
+          <label for="l_existing_graphics">Existing graphics to remove? (optional)</label>
+          <textarea id="l_existing_graphics" name="existing_graphics" placeholder="Tell us if there’s old vinyl/decals that need removal, damage, rust, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="section-title">Measurements & Materials</div>
+      <div class="grid">
+        <div>
+          <label for="l_measurements_ready">Do you have measurements?</label>
+          <select id="l_measurements_ready" name="measurements_ready">
+            <option value="Not yet" selected>Not yet</option>
+            <option value="Yes - I'll provide">Yes - I'll provide</option>
+            <option value="Yes - included in files">Yes - included in files</option>
+          </select>
+        </div>
+        <div>
+          <label for="l_material_pref">Material Preference (optional)</label>
+          <input id="l_material_pref" name="material_preference" type="text" placeholder="3M, Avery, Oracal, not sure">
+        </div>
+
+        <div class="full">
+          <label for="l_scope_list">List surfaces/areas to cover (optional)</label>
+          <textarea id="l_scope_list" name="scope_list" placeholder="Example: driver/passenger doors, rear, hood, windows, wall sections, panels, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="section-title">Requested Items (optional)</div>
+      <p style="margin-top:0.5rem; opacity:0.85;">
+        If you know exact quantities/sizes, add them below. If not, you can leave this blank and just upload photos.
+      </p>
+      <table class="items-table" aria-label="Requested items table">
+        <thead>
+          <tr>
+            <th style="width: 90px;">Qty</th>
+            <th>Description of Work</th>
+            <th style="width: 210px;">Material (optional)</th>
+            <th style="width: 260px;">Notes (optional)</th>
+            <th style="width: 70px;">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody id="l_itemsBody"></tbody>
+      </table>
+
+      <div class="row-actions">
+        <button class="btn-secondary" type="button" id="l_addRow">+ Add Item</button>
+        <button class="btn-secondary" type="button" id="l_clearRows">Clear Items</button>
+      </div>
+
+      <div class="section-title">Files</div>
+      <div class="grid">
+        <div class="full">
+          <label for="l_files">Upload Photos / Logos / Reference (optional)</label>
+          <input id="l_files" name="files" type="file" multiple>
+        </div>
+      </div>
+
+      <div class="agree">
+        <input id="l_agree" name="agree_terms" type="checkbox" required>
+        <label for="l_agree">
+          I understand this submission is a request and may require confirmation (final pricing/requirements may change).
+          <a href="terms.html">View terms</a>
+        </label>
       </div>
 
       <button type="submit">Submit Project</button>
@@ -153,74 +485,120 @@
 </footer>
 
 <script>
-// Toggle forms
-const quickPrintBtn = document.getElementById('quickPrintBtn');
-const largeProjectBtn = document.getElementById('largeProjectBtn');
-const quickForm = document.getElementById('quickPrintForm');
-const largeForm = document.getElementById('largeProjectForm');
-
-quickPrintBtn.onclick = () => {
-  quickForm.classList.remove('hidden');
-  largeForm.classList.add('hidden');
-};
-
-largeProjectBtn.onclick = () => {
-  largeForm.classList.remove('hidden');
-  quickForm.classList.add('hidden');
-};
-
-// PRICE CALCULATOR
-const calcBtn = document.getElementById('calcPriceBtn');
-const out = document.getElementById('priceOutput');
-
-calcBtn.onclick = () => {
-  const product = document.getElementById('productType').value;
-  let w = parseFloat(document.getElementById('widthIn').value);
-  let h = parseFloat(document.getElementById('heightIn').value);
-  let qty = parseInt(document.getElementById('qty').value);
-
-  if (!w || !h || !qty) {
-    out.textContent = "Enter valid size + quantity.";
-    return;
-  }
-
-  // ROTATION
-  let decalW = Math.min(w, h);
-  let decalH = Math.max(w, h);
-
-  let rollW = (product === "diecut") ? 30 : 54;
-  let pricePerSqft = (product === "diecut") ? 18 : 23;
-
-  let needsExtra12 = (product === "printed");
-
-  // Calculate rows
-  let usedHeight = 0;
-  let rowWidth = 0;
-  let rowHeight = decalH;
-
-  for (let i = 0; i < qty; i++) {
-    if (rowWidth + decalW <= rollW) {
-      rowWidth += decalW;
-    } else {
-      usedHeight += rowHeight;
-      rowWidth = decalW;
-    }
-  }
-  usedHeight += rowHeight;
-
-  if (needsExtra12) usedHeight += 12;
-
-  let sqft = (rollW * usedHeight) / 144;
-  sqft = Math.ceil(sqft);
-
-  let price = Math.max(50, sqft * pricePerSqft);
-
-  out.textContent = `Total: $${price} (${sqft} sqft)`;
-};
-</script>
-
-<script>
+  // Year in footer
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Toggle forms
+  const quickPrintBtn = document.getElementById('quickPrintBtn');
+  const largeProjectBtn = document.getElementById('largeProjectBtn');
+  const quickForm = document.getElementById('quickPrintForm');
+  const largeForm = document.getElementById('largeProjectForm');
+
+  quickPrintBtn.onclick = () => {
+    quickForm.classList.remove('hidden');
+    largeForm.classList.add('hidden');
+    window.scrollTo({ top: quickForm.offsetTop - 120, behavior: 'smooth' });
+  };
+
+  largeProjectBtn.onclick = () => {
+    largeForm.classList.remove('hidden');
+    quickForm.classList.add('hidden');
+    window.scrollTo({ top: largeForm.offsetTop - 120, behavior: 'smooth' });
+  };
+
+  // === Pricing constants (updated to match your 2025 sheet) ===
+  // NOTE: Pricing UI is NOT shown on the form right now, but these are ready for backend/admin use later.
+  const PRICE_SQFT = {
+    // Digital Printing Media per Sq. Ft. (standard/common items)
+    ORAJET_3651_ORA210_PRINT_ONLY: 12.50,
+    ORAJET_3651_ORA210_PRINT_CUT: 16.00,
+    ARLON_BANNER_13OZ_HEM_GROM_PRINT_ONLY: 12.50,
+    DIECUT_SOLID_COLOR_BASE: 18.00 // keep as your current quick-order baseline; die-cut table is more complex
+  };
+
+  // === Requested Items table helpers ===
+  function addItemRow(tbodyId){
+    const tbody = document.getElementById(tbodyId);
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td><input name="qty[]" type="number" min="1" placeholder="1"></td>
+      <td><textarea name="desc[]" placeholder="What are we making? Size, finishing, etc."></textarea></td>
+      <td><input name="material[]" type="text" placeholder="Oracal, 3M, banner, etc."></td>
+      <td><textarea name="notes[]" placeholder="Color, install notes, placement, deadlines..."></textarea></td>
+      <td><button type="button" class="btn-secondary" aria-label="Remove row">✕</button></td>
+    `;
+
+    tr.querySelector('button').onclick = () => tr.remove();
+    tbody.appendChild(tr);
+  }
+
+  function clearRows(tbodyId){
+    document.getElementById(tbodyId).innerHTML = '';
+    addItemRow(tbodyId);
+  }
+
+  // Quick form rows
+  document.getElementById('q_addRow').onclick = () => addItemRow('q_itemsBody');
+  document.getElementById('q_clearRows').onclick = () => clearRows('q_itemsBody');
+
+  // Large form rows
+  document.getElementById('l_addRow').onclick = () => addItemRow('l_itemsBody');
+  document.getElementById('l_clearRows').onclick = () => clearRows('l_itemsBody');
+
+  // Initialize with 1 row each
+  clearRows('q_itemsBody');
+  clearRows('l_itemsBody');
+
+  // For now, prevent submit (since no backend/email yet)
+  // We'll wire this up to Admin Portal + email + PDF in the next step.
+
+  function collectItems(tbodyId){
+    const rows = Array.from(document.querySelectorAll(`#${tbodyId} tr`));
+    return rows.map(r => ({
+      qty: r.querySelector('input[name="qty[]"]')?.value || "",
+      desc: r.querySelector('textarea[name="desc[]"]')?.value || "",
+      material: r.querySelector('input[name="material[]"]')?.value || "",
+      notes: r.querySelector('textarea[name="notes[]"]')?.value || ""
+    })).filter(it => it.qty || it.desc || it.material || it.notes);
+  }
+
+  async function postOrder(formEl, itemsTbodyId, orderType){
+    const fd = new FormData(formEl);
+    fd.append("order_type", orderType);
+    fd.append("items_json", JSON.stringify(collectItems(itemsTbodyId)));
+
+    const res = await fetch("/api/orders", { method:"POST", body: fd });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || !data.ok){
+      throw new Error(data.error || "Submission failed");
+    }
+    return data;
+  }
+
+  document.getElementById('quickOrderForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try{
+      await postOrder(e.currentTarget, "q_itemsBody", "quick");
+      alert("Submitted! Check your email for confirmation.");
+      e.currentTarget.reset();
+      clearRows("q_itemsBody");
+    }catch(err){
+      alert(err.message);
+    }
+  });
+
+  document.getElementById('largeOrderForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try{
+      await postOrder(e.currentTarget, "l_itemsBody", "large");
+      alert("Submitted! Check your email for confirmation.");
+      e.currentTarget.reset();
+      clearRows("l_itemsBody");
+    }catch(err){
+      alert(err.message);
+    }
+  });
 </script>
 
 </body>

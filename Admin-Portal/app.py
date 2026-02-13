@@ -21,9 +21,13 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
 
+# Optional: where uploaded order files are stored
+app.config["ORDER_UPLOAD_DIR"] = "/mnt/ssd/crowngfx/uploads/orders"
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "crown_portal.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# Initialize extensions
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()

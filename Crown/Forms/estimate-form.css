@@ -1,0 +1,161 @@
+:root{
+  --line:#000;
+  --bg:#f3f4f6;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+}
+
+.page{
+  width:11in;
+  min-height:8.5in;
+  margin:6px auto;
+  padding:8px;
+  background:#fff;
+  border:2px solid var(--line);
+}
+
+.top-header{
+  display:grid;
+  grid-template-columns:2.4in 1fr 2.2in;
+  gap:8px;
+  margin-bottom:6px;
+}
+
+.brand-left{
+  display:grid;
+  grid-template-columns:.8in 1fr;
+  gap:8px;
+}
+
+.logo-circle{
+  border:2px solid var(--line);
+  border-radius:999px;
+  height:.8in;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+}
+
+.logo-wide{
+  border:2px solid var(--line);
+  height:.5in;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+}
+
+.estimate-title{
+  font-weight:900;
+  font-size:22px;
+}
+
+.brand-right{
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-start;
+}
+
+.estimate-num{
+  display:grid;
+  grid-template-columns:auto 1.4in;
+  gap:6px;
+}
+
+.panel{
+  border:2px solid var(--line);
+  padding:6px;
+}
+
+.panel-title{
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.row-3{
+  display:grid;
+  grid-template-columns:1.1fr 1.1fr .8fr;
+  gap:6px;
+  margin-bottom:6px;
+}
+
+.bottom-row{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:6px;
+}
+
+.lines{display:grid;gap:4px;}
+.line{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:4px;
+  align-items:end;
+}
+
+.line-fill{
+  border-bottom:2px solid var(--line);
+  min-height:16px;
+  padding:0 4px;
+}
+
+.line-fill--box{
+  border:2px solid var(--line);
+}
+
+.two-col{
+  grid-template-columns:1fr 1fr;
+  gap:4px 8px;
+}
+
+.split{
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+.summary-box{
+  border-top:2px solid var(--line);
+  min-height:36px;
+}
+
+.table-panel{padding:0;}
+.items{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+.items th,.items td{
+  border:1px solid var(--line);
+  padding:4px;
+}
+
+.footer{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:end;
+  margin-top:4px;
+}
+
+.sig{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:6px;
+}
+
+button{
+  border:2px solid var(--line);
+  background:#fff;
+  padding:4px 10px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+@media print{
+  body{background:#fff;}
+  button{display:none;}
+}
