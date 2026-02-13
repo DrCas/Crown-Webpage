@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 
-from .models import db, Order  # adjust import paths to match your project
-from .pdf_utils import build_order_pdf_bytes
-from .email_utils import send_order_emails
+from models import db, Order
+from pdf_utils import build_order_pdf_bytes
+from email_utils import send_order_emails
 
 orders_api = Blueprint("orders_api", __name__, url_prefix="/api")
 
@@ -47,7 +47,7 @@ def create_order():
         if not _allowed(fname):
             continue
         uid = uuid.uuid4().hex[:10]
-        stored = f"{datetime.utcnow().strftime('%Y%m%d')}_{uid}_{fname}"
+        stored = f"{datetime.now(timezone.utc).strftime('%Y%m%d')}_{uid}_{fname}"
         path = os.path.join(upload_dir, stored)
         f.save(path)
         saved_files.append(path)
@@ -63,7 +63,7 @@ def create_order():
         items_json=items_json,   # store raw items JSON (string)
         uploaded_files=saved_files,  # JSON column recommended
         status="NEW",
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
     db.session.add(order)
     db.session.commit()

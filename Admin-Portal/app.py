@@ -21,6 +21,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
 
+from orders_api import orders_api
+app.register_blueprint(orders_api)
+
 # Optional: where uploaded order files are stored
 app.config["ORDER_UPLOAD_DIR"] = "/mnt/ssd/crowngfx/uploads/orders"
 
