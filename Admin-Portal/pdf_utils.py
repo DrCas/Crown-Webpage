@@ -1,105 +1,159 @@
 from __future__ import annotations
 
-import json
+# =========================================
+# pdf_utils.py
+# Crown Admin Portal - PDF generation helpers
+# =========================================
+# Produces a simple, printable PDF summary of an order using ReportLab.
+# =========================================
+
 from io import BytesIO
 from datetime import datetime
+
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 
-def build_order_pdf_bytes(order, items_json: str) -> bytes:
+
+def _safe(s) -> str:
+    if s is None:
+        return ""
+    return str(s)
+
+
+def build_order_pdf_bytes(order: dict, items: list[dict]) -> bytes:
+    """
+    Returns PDF bytes.
+    order: dict with keys like name, email, phone, company, order_id, order_type, created_at
+    items: list of dict rows: qty/description/material/notes (best-effort)
+    """
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=letter)
-    w, h = letter
+    width, height = letter
 
-    margin = 50
-    y = h - margin
+    # ---- Header
+    margin = 0.6 * inch
+    y = height - margin
 
-    def line(txt, size=11, gap=14):
-        nonlocal y
-        c.setFont("Helvetica", size)
-        c.drawString(margin, y, txt)
-        y -= gap
-        if y < margin:
-            c.showPage()
-            y = h - margin
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(margin, y, "Crown Graphics - Order Intake")
+    y -= 0.28 * inch
 
-    c.setTitle(f"Crown Order #{getattr(order,'id','')}")
-    line("Crown Graphics — Order Submission", size=16, gap=22)
-    line(f"Generated: {datetime.now().strftime('%m/%d/%Y %I:%M %p')}", size=10, gap=16)
-    line(f"Order ID: {getattr(order,'id','')}")
-    line(f"Order Type: {getattr(order,'order_type','')}")
-    line("")
+    c.setFont("Helvetica", 10)
+    c.drawString(margin, y, f"Order ID: {_safe(order.get('order_id'))}")
+    c.drawRightString(width - margin, y, f"Type: {_safe(order.get('order_type')).upper()}")
+    y -= 0.18 * inch
 
-    # Customer block
-    line("Customer", size=13, gap=18)
-    line(f"Name: {getattr(order,'name','')}")
-    line(f"Company: {getattr(order,'company','')}")
-    line(f"Email: {getattr(order,'email','')}")
-    line(f"Phone: {getattr(order,'phone','')}")
-    line("")
+    created_at = _safe(order.get("created_at"))
+    if created_at:
+        # keep as-is; could parse/format if needed
+        c.drawString(margin, y, f"Created: {created_at}")
+    else:
+        c.drawString(margin, y, f"Created: {datetime.utcnow().isoformat()}")
+    y -= 0.30 * inch
 
-    # Pull raw payload dict if available
-    payload = getattr(order, "payload", None)
-    if isinstance(payload, str):
-        try:
-            payload = json.loads(payload)
-        except Exception:
-            payload = None
+    # ---- Customer block
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(margin, y, "Customer")
+    y -= 0.18 * inch
 
-    if isinstance(payload, dict):
-        # Common fields
-        needed_by = payload.get("needed_by", "")
-        summary = payload.get("summary", "")
-        if needed_by:
-            line(f"Needed By: {needed_by}")
-        if summary:
-            line("Summary:", size=12, gap=16)
-            for chunk in _wrap(summary, 95):
-                line(chunk, size=11, gap=14)
-            line("")
+    c.setFont("Helvetica", 10)
+    c.drawString(margin, y, f"Name: {_safe(order.get('name'))}")
+    y -= 0.16 * inch
+    c.drawString(margin, y, f"Email: {_safe(order.get('email'))}")
+    y -= 0.16 * inch
+    c.drawString(margin, y, f"Phone: {_safe(order.get('phone'))}")
+    y -= 0.16 * inch
+    c.drawString(margin, y, f"Company: {_safe(order.get('company'))}")
+    y -= 0.28 * inch
 
-    # Items table (simple)
-    line("Requested Items", size=13, gap=18)
-    try:
-        items = json.loads(items_json or "[]")
-    except Exception:
-        items = []
+    # ---- Items table header
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(margin, y, "Requested Items")
+    y -= 0.22 * inch
+
+    c.setFont("Helvetica-Bold", 9)
+    col_qty = margin
+    col_desc = margin + 0.7 * inch
+    col_mat = margin + 3.9 * inch
+    col_notes = margin + 5.4 * inch
+
+    c.drawString(col_qty, y, "Qty")
+    c.drawString(col_desc, y, "Description")
+    c.drawString(col_mat, y, "Material")
+    c.drawString(col_notes, y, "Notes")
+    y -= 0.12 * inch
+
+    c.setLineWidth(0.5)
+    c.line(margin, y, width - margin, y)
+    y -= 0.14 * inch
+
+    c.setFont("Helvetica", 9)
 
     if not items:
-        line("(none listed)")
+        c.drawString(margin, y, "(No items provided)")
+        y -= 0.18 * inch
     else:
-        for i, it in enumerate(items, 1):
-            qty = str(it.get("qty","")).strip()
-            desc = str(it.get("desc","")).strip()
-            mat = str(it.get("material","")).strip()
-            notes = str(it.get("notes","")).strip()
-            line(f"{i}) Qty: {qty}  Material: {mat}", size=11, gap=14)
-            if desc:
-                for chunk in _wrap(f"Desc: {desc}", 95):
-                    line(chunk, size=11, gap=14)
-            if notes:
-                for chunk in _wrap(f"Notes: {notes}", 95):
-                    line(chunk, size=11, gap=14)
-            line("")
+        for row in items:
+            qty = _safe(row.get("qty", ""))
+            desc = _safe(row.get("description", row.get("desc", "")))
+            mat = _safe(row.get("material", ""))
+            notes = _safe(row.get("notes", ""))
+
+            # simple line wrap for long fields
+            def wrap(text, max_chars):
+                if len(text) <= max_chars:
+                    return [text]
+                words = text.split()
+                lines, cur = [], ""
+                for w in words:
+                    if len(cur) + len(w) + 1 <= max_chars:
+                        cur = (cur + " " + w).strip()
+                    else:
+                        if cur:
+                            lines.append(cur)
+                        cur = w
+                if cur:
+                    lines.append(cur)
+                return lines
+
+            desc_lines = wrap(desc, 42)
+            notes_lines = wrap(notes, 28)
+            row_lines = max(len(desc_lines), len(notes_lines), 1)
+
+            for i in range(row_lines):
+                if y < margin + 1.0 * inch:
+                    c.showPage()
+                    y = height - margin
+                    c.setFont("Helvetica-Bold", 12)
+                    c.drawString(margin, y, "Requested Items (cont.)")
+                    y -= 0.22 * inch
+                    c.setFont("Helvetica-Bold", 9)
+                    c.drawString(col_qty, y, "Qty")
+                    c.drawString(col_desc, y, "Description")
+                    c.drawString(col_mat, y, "Material")
+                    c.drawString(col_notes, y, "Notes")
+                    y -= 0.12 * inch
+                    c.line(margin, y, width - margin, y)
+                    y -= 0.14 * inch
+                    c.setFont("Helvetica", 9)
+
+                if i == 0:
+                    c.drawString(col_qty, y, qty)
+                    c.drawString(col_mat, y, mat)
+
+                c.drawString(col_desc, y, desc_lines[i] if i < len(desc_lines) else "")
+                c.drawString(col_notes, y, notes_lines[i] if i < len(notes_lines) else "")
+                y -= 0.14 * inch
+
+            y -= 0.06 * inch
+
+    # ---- Footer note
+    c.setFont("Helvetica-Oblique", 8)
+    c.drawString(margin, margin * 0.8, "Generated automatically by Crown Admin Portal")
 
     c.showPage()
     c.save()
-    return buf.getvalue()
 
-def _wrap(text: str, width: int):
-    # simple word-wrap without dependencies
-    words = (text or "").split()
-    lines = []
-    cur = []
-    cur_len = 0
-    for w in words:
-        if cur_len + len(w) + (1 if cur else 0) > width:
-            lines.append(" ".join(cur))
-            cur = [w]
-            cur_len = len(w)
-        else:
-            cur.append(w)
-            cur_len += len(w) + (1 if cur_len else 0)
-    if cur:
-        lines.append(" ".join(cur))
-    return lines
+    buf.seek(0)
+    return buf.read()
