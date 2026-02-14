@@ -21,6 +21,16 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+@app.template_filter("prettyjson")
+def prettyjson_filter(value):
+    try:
+        if value is None:
+            return ""
+        if isinstance(value, str):
+            value = json.loads(value)
+        return json.dumps(value, indent=2, ensure_ascii=False)
+    except Exception:
+        return str(value)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
 
 from orders_api import orders_api
