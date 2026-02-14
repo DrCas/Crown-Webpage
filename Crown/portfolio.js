@@ -1,18 +1,12 @@
-(() => {
+(function(){
   // ====== CONFIG ======
-  // IMPORTANT: This assumes your files are named exactly:
-  // fullImages/Collection/Slides/slide-1.jpg ... slide-44.jpg
   const FOLDER = "images/Collection/Slides/";
-  // If you have smaller thumbnail copies, put them in a separate folder
-  // with the SAME filenames (slide-1.webp, slide-2.webp, ...)
-  // Example: images/Collection/Thumbs/slide-1.webp
   const THUMB_FOLDER = "images/Collection/Thumbs/";
   const BASENAME = "slide-";
-  const EXT = "webp";          // Change to "png" if your slides are png
-  const COUNT = 44;           // update if your slide count changes
-  const AUTOPLAY_MS = 4500;   // slideshow speed
+  const EXT = "webp";
+  const COUNT = 44;
+  const AUTOPLAY_MS = 4500;
 
-  // ====== ELEMENTS ======
   const slidesTrack = document.getElementById("slidesTrack");
   const statusEl = document.getElementById("sliderStatus");
   const galleryEl = document.getElementById("portfolioGallery");
@@ -23,13 +17,11 @@
   const lightboxClose = document.getElementById("lightboxClose");
   const lightboxBackdrop = document.getElementById("lightboxBackdrop");
 
-  // ====== STATE ======
   const fullImages = Array.from({ length: COUNT }, (_, i) => `${FOLDER}${BASENAME}${i + 1}.${EXT}`);
   const thumbImages = Array.from({ length: COUNT }, (_, i) => `${THUMB_FOLDER}${BASENAME}${i + 1}.${EXT}`);
   let idx = 0;
   let autoplay = null;
 
-  // ====== HELPERS ======
   function updateStatus() {
     if (!statusEl) return;
     statusEl.textContent = fullImages.length ? `${idx + 1} / ${fullImages.length}` : "";
@@ -85,7 +77,6 @@
     autoplay = null;
   }
 
-  // ====== GALLERY RENDER ======
   function renderGallery() {
     if (!galleryEl) return;
     galleryEl.innerHTML = "";
@@ -126,7 +117,6 @@
     galleryEl.querySelectorAll("img[data-src]").forEach(img => io.observe(img));
   }
 
-  // ====== LIGHTBOX EVENTS ======
   if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
   if (lightboxBackdrop) lightboxBackdrop.addEventListener("click", closeLightbox);
 
@@ -139,7 +129,6 @@
     else startAutoplay();
   });
 
-  // ====== INIT ======
   if (!fullImages.length) {
     if (statusEl) statusEl.textContent = "No images found.";
     return;
