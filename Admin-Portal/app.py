@@ -178,12 +178,34 @@ def next_po_for_date(received: date) -> tuple[str, int]:
 
 
 def po_display(job: Job) -> str:
-    return f"{job.po_date_key}-{job.po_seq:02d}"
+    # Safely format the PO display; handle missing or malformed fields.
+    try:
+        if not getattr(job, "po_date_key", None) or getattr(job, "po_seq", None) is None:
+            return ""
+        return f"{job.po_date_key}-{job.po_seq:02d}"
+    except Exception:
+        return ""
 
 
 def job_display_name(job: Job) -> str:
-    # Job Title • Date Received • PO
-    return f"{job.job_title} • {job.received_date.strftime('%m-%d-%Y')} • {po_display(job)}"
+    # Job Title • Date Received • PO — be defensive about missing fields
+    title = job.job_title or ""
+
+    received = ""
+    try:
+        if getattr(job, "received_date", None):
+            received = job.received_date.strftime("%m-%d-%Y")
+    except Exception:
+        received = ""
+
+    po = ""
+    try:
+        po = po_display(job)
+    except Exception:
+        po = ""
+
+    parts = [p for p in (title, received, po) if p]
+    return " • ".join(parts)
 
 
 def stage_index(job: Job) -> int:
