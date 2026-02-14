@@ -529,6 +529,27 @@ def user_delete(user_id):
     return redirect(url_for("users"))
 
 
+@app.route("/jobs/<int:job_id>/delete", methods=["POST"])
+@login_required
+def job_delete(job_id):
+    """Admin-only: delete a job and its logs."""
+    admin_required()
+
+    job = Job.query.get_or_404(job_id)
+
+    # record deletion action before removing rows
+    log_event(job.id, "deleted", f"Job deleted: {job_display_name(job)}")
+
+    # remove associated logs first (avoid FK issues)
+    JobLog.query.filter_by(job_id=job.id).delete()
+
+    db.session.delete(job)
+    db.session.commit()
+
+    flash(f"Deleted job: {job.job_title}", "success")
+    return redirect(url_for("dashboard"))
+
+
 # -------------------- One-time init --------------------
 @app.route("/init-db")
 def init_db():

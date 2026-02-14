@@ -37,6 +37,11 @@
     </select>
     <button class="btn btn-primary" type="submit">Update Progress</button>
   </form>
+  {% if current_user.is_admin() %}
+    <form method="post" action="{{ url_for('job_delete', job_id=job.id) }}" class="btnrow" style="margin-top:8px;">
+      <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this job and all associated logs? This cannot be undone.');">Delete Job (Admin)</button>
+    </form>
+  {% endif %}
 </div>
 
 <div class="grid grid-2" style="margin-top:16px;">
