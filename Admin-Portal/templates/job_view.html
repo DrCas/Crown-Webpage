@@ -90,6 +90,32 @@
       <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">Details / Notes</div>
       <div style="margin-top:6px; white-space:pre-wrap;">{{ job.job_details or "—" }}</div>
     </div>
+
+    {% if job.submission_json %}
+      <div style="margin-top:14px;">
+        <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">Order Intake</div>
+
+        <div class="intake-grid" style="margin-top:8px;">
+          <div class="intake-card">
+            <div class="kv"><span>Name</span><span>{{ job.customer_name }}</span></div>
+            <div class="kv"><span>Email</span><span>{{ job.email_address or '—' }}</span></div>
+            <div class="kv"><span>Phone</span><span>{{ job.phone_number or '—' }}</span></div>
+            <div class="kv"><span>Source</span><span>{{ job.source or '—' }}</span></div>
+          </div>
+
+          <div class="intake-card">
+            <h4 style="margin:0 0 6px 0;">Summary</h4>
+            <div>{{ job.job_summary or "—" }}</div>
+            <div style="margin-top:8px; font-size:0.95rem; color:var(--muted);">Order ID: <b>{{ job.intake_order_id }}</b></div>
+          </div>
+        </div>
+
+        <details class="raw-json" style="margin-top:10px;">
+          <summary>View Raw Intake JSON</summary>
+          <pre>{{ job.submission_json | prettyjson }}</pre>
+        </details>
+      </div>
+    {% endif %}
   </div>
 
   <div class="panel">

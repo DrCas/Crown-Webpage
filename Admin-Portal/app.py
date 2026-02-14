@@ -1,6 +1,8 @@
 import os
 from datetime import datetime, date
 from dotenv import load_dotenv
+import json
+from sqlalchemy import text
 
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
@@ -144,6 +146,8 @@ def parse_mmddyyyy(value: str) -> date:
     if not value:
         raise ValueError("Empty date")
     value = value.strip().replace("/", "-")
+
+
     return datetime.strptime(value, "%m-%d-%Y").date()
 
 
@@ -565,9 +569,18 @@ def init_db():
         u.set_password(admin_pass)
         db.session.add(u)
         db.session.commit()
-        return f"DB initialized. Admin user created: {admin_user}"
+        created_msg = f"DB initialized. Admin user created: {admin_user}"
+    else:
+        created_msg = "DB initialized. Admin user already exists."
 
-    return "DB initialized. Admin user already exists."
+    # Ensure unique index on intake_order_id to make intake idempotent
+    try:
+        db.session.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ux_job_intake_order_id ON job(intake_order_id);"))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    return created_msg
 
 
 if __name__ == "__main__":
