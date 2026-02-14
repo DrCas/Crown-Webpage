@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Status • Crown Graphics</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="logo" href="index.html">Crown Graphics</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="quick-order.html">Quick Order</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="glass readable" style="margin-top: 24px;">
+      <h1 id="statusTitle">Order Status</h1>
+
+      <div id="statusSuccess" class="status-box status-ok" style="display:none;">
+        <p><strong>✅ Order sent successfully.</strong></p>
+        <p id="statusIds" class="muted"></p>
+        <p>We’ll review it and reach out if we need anything else.</p>
+        <div class="btn-row">
+          <a class="btn" href="index.html">Back to Home</a>
+          <a class="btn btn-outline" href="quick-order.html">Submit Another</a>
+        </div>
+      </div>
+
+      <div id="statusFail" class="status-box status-bad" style="display:none;">
+        <p><strong>❌ Order failed to send.</strong></p>
+        <p id="statusMsg" class="muted"></p>
+        <p>Please try again. If it keeps failing, contact us directly.</p>
+        <div class="btn-row">
+          <a class="btn" href="quick-order.html">Try Again</a>
+          <a class="btn btn-outline" href="contact.html">Contact Us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ok = params.get("ok");
+    const orderId = params.get("order_id");
+    const jobId = params.get("job_id");
+    const msg = params.get("msg");
+
+    const successBox = document.getElementById("statusSuccess");
+    const failBox = document.getElementById("statusFail");
+
+    if (ok === "1") {
+      successBox.style.display = "block";
+      const ids = [];
+      if (orderId) ids.push("Order ID: " + orderId);
+      if (jobId) ids.push("Job ID: " + jobId);
+      document.getElementById("statusIds").textContent = ids.length ? ids.join(" • ") : "";
+      document.getElementById("statusTitle").textContent = "Order Sent";
+    } else {
+      failBox.style.display = "block";
+      document.getElementById("statusMsg").textContent = msg ? decodeURIComponent(msg) : "Unknown error.";
+      document.getElementById("statusTitle").textContent = "Order Failed";
+    }
+  </script>
+</body>
+</html>

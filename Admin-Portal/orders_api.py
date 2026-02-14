@@ -20,6 +20,7 @@ from werkzeug.utils import secure_filename
 
 from pdf_utils import build_order_pdf_bytes
 from email_utils import send_order_emails
+from sqlalchemy.exc import IntegrityError
 
 orders_api = Blueprint("orders_api", __name__, url_prefix="/api")
 
@@ -208,6 +209,35 @@ def create_order():
         items = []
 
     # -----------------------------
+    # Save to database (insert first to avoid double-email on duplicate)
+    # -----------------------------
+    job_id = None
+    db_error = None
+    deduped = False
+    try:
+        job_id = _insert_job_from_intake(
+            order_id=order_id,
+            order_type=order_type,
+            form_fields=form,
+            items=items,
+            saved_files=saved_files,
+        )
+    except IntegrityError:
+        # Likely duplicate intake_order_id - fetch existing job and skip re-sending emails
+        current_app.logger.warning("Duplicate intake_order_id detected; deduping")
+        from app import db, Job
+        existing = db.session.query(Job).filter_by(intake_order_id=order_id).first()
+        job_id = existing.id if existing else None
+        deduped = True
+    except Exception as e:
+        current_app.logger.exception("Database insert failed")
+        db_error = str(e)
+        return jsonify({"ok": False, "error": "DB insert failed", "db_error": db_error}), 500
+
+    if deduped:
+        return jsonify({"ok": True, "order_id": order_id, "job_id": job_id, "deduped": True}), 200
+
+    # -----------------------------
     # Build PDF (if PDF build fails, treat as server error)
     # -----------------------------
     pdf_bytes = build_order_pdf_bytes(order_data, items=items)
@@ -228,23 +258,6 @@ def create_order():
     except Exception as e:
         current_app.logger.exception("Order email failed")
         email_error = str(e)
-
-    # -----------------------------
-    # Save to database
-    # -----------------------------
-    job_id = None
-    db_error = None
-    try:
-        job_id = _insert_job_from_intake(
-            order_id=order_id,
-            order_type=order_type,
-            form_fields=form,
-            items=items,
-            saved_files=saved_files,
-        )
-    except Exception as e:
-        current_app.logger.exception("Database insert failed")
-        db_error = str(e)
 
     # -----------------------------
     # Response

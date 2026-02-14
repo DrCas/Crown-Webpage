@@ -1,6 +1,8 @@
 import os
 from datetime import datetime, date
 from dotenv import load_dotenv
+import json
+from sqlalchemy import text
 
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
@@ -19,6 +21,16 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+@app.template_filter("prettyjson")
+def prettyjson_filter(value):
+    try:
+        if value is None:
+            return ""
+        if isinstance(value, str):
+            value = json.loads(value)
+        return json.dumps(value, indent=2, ensure_ascii=False)
+    except Exception:
+        return str(value)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
 
 from orders_api import orders_api
@@ -144,6 +156,8 @@ def parse_mmddyyyy(value: str) -> date:
     if not value:
         raise ValueError("Empty date")
     value = value.strip().replace("/", "-")
+
+
     return datetime.strptime(value, "%m-%d-%Y").date()
 
 
@@ -174,12 +188,34 @@ def next_po_for_date(received: date) -> tuple[str, int]:
 
 
 def po_display(job: Job) -> str:
-    return f"{job.po_date_key}-{job.po_seq:02d}"
+    # Safely format the PO display; handle missing or malformed fields.
+    try:
+        if not getattr(job, "po_date_key", None) or getattr(job, "po_seq", None) is None:
+            return ""
+        return f"{job.po_date_key}-{job.po_seq:02d}"
+    except Exception:
+        return ""
 
 
 def job_display_name(job: Job) -> str:
-    # Job Title • Date Received • PO
-    return f"{job.job_title} • {job.received_date.strftime('%m-%d-%Y')} • {po_display(job)}"
+    # Job Title • Date Received • PO — be defensive about missing fields
+    title = job.job_title or ""
+
+    received = ""
+    try:
+        if getattr(job, "received_date", None):
+            received = job.received_date.strftime("%m-%d-%Y")
+    except Exception:
+        received = ""
+
+    po = ""
+    try:
+        po = po_display(job)
+    except Exception:
+        po = ""
+
+    parts = [p for p in (title, received, po) if p]
+    return " • ".join(parts)
 
 
 def stage_index(job: Job) -> int:
@@ -529,6 +565,27 @@ def user_delete(user_id):
     return redirect(url_for("users"))
 
 
+@app.route("/jobs/<int:job_id>/delete", methods=["POST"])
+@login_required
+def job_delete(job_id):
+    """Admin-only: delete a job and its logs."""
+    admin_required()
+
+    job = Job.query.get_or_404(job_id)
+
+    # record deletion action before removing rows
+    log_event(job.id, "deleted", f"Job deleted: {job_display_name(job)}")
+
+    # remove associated logs first (avoid FK issues)
+    JobLog.query.filter_by(job_id=job.id).delete()
+
+    db.session.delete(job)
+    db.session.commit()
+
+    flash(f"Deleted job: {job.job_title}", "success")
+    return redirect(url_for("dashboard"))
+
+
 # -------------------- One-time init --------------------
 @app.route("/init-db")
 def init_db():
@@ -544,9 +601,18 @@ def init_db():
         u.set_password(admin_pass)
         db.session.add(u)
         db.session.commit()
-        return f"DB initialized. Admin user created: {admin_user}"
+        created_msg = f"DB initialized. Admin user created: {admin_user}"
+    else:
+        created_msg = "DB initialized. Admin user already exists."
 
-    return "DB initialized. Admin user already exists."
+    # Ensure unique index on intake_order_id to make intake idempotent
+    try:
+        db.session.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ux_job_intake_order_id ON job(intake_order_id);"))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    return created_msg
 
 
 if __name__ == "__main__":

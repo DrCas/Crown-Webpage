@@ -159,6 +159,7 @@
     <h2>Quick Print Order</h2>
 
     <form id="quickOrderForm">
+      <div id="formErrorsQuick" class="form-errors" style="display:none;"></div>
       <div class="section-title">Customer Information</div>
       <div class="grid">
         <div>
@@ -271,8 +272,9 @@
   <div id="largeProjectForm" class="order-box hidden">
     <h2>Large Project / Wrap Request</h2>
 
-    <form id="largeOrderForm">
-      <div class="section-title">Customer Information</div>
+      <form id="largeOrderForm">
+        <div id="formErrorsLarge" class="form-errors" style="display:none;"></div>
+        <div class="section-title">Customer Information</div>
       <div class="grid">
         <div>
           <label for="l_name">Name *</label>
@@ -484,7 +486,10 @@
   </div>
 </footer>
 
-<script>
+  <script src="quick-order.js"></script>
+
+  
+  <script>
   // Year in footer
   document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -520,7 +525,7 @@
   function addItemRow(tbodyId){
     const tbody = document.getElementById(tbodyId);
     const tr = document.createElement('tr');
-
+    tr.className = 'item-row';
     tr.innerHTML = `
       <td><input name="qty[]" type="number" min="1" placeholder="1"></td>
       <td><textarea name="desc[]" placeholder="What are we making? Size, finishing, etc."></textarea></td>
@@ -550,55 +555,101 @@
   clearRows('q_itemsBody');
   clearRows('l_itemsBody');
 
-  // For now, prevent submit (since no backend/email yet)
-  // We'll wire this up to Admin Portal + email + PDF in the next step.
-
-  function collectItems(tbodyId){
-    const rows = Array.from(document.querySelectorAll(`#${tbodyId} tr`));
-    return rows.map(r => ({
-      qty: r.querySelector('input[name="qty[]"]')?.value || "",
-      desc: r.querySelector('textarea[name="desc[]"]')?.value || "",
-      material: r.querySelector('input[name="material[]"]')?.value || "",
-      notes: r.querySelector('textarea[name="notes[]"]')?.value || ""
-    })).filter(it => it.qty || it.desc || it.material || it.notes);
+  // Validation and submit handler
+  function humanLabel(el) {
+    const id = el.getAttribute("id");
+    if (id) {
+      const lbl = document.querySelector(`label[for="${id}"]`);
+      if (lbl) return lbl.textContent.trim().replace(/\*$/, "");
+    }
+    return (el.getAttribute("name") || el.getAttribute("placeholder") || "Required field").trim();
   }
 
-  async function postOrder(formEl, itemsTbodyId, orderType){
-    const fd = new FormData(formEl);
-    fd.append("order_type", orderType);
-    fd.append("items_json", JSON.stringify(collectItems(itemsTbodyId)));
+  function validateForm(form, errorBox) {
+    const missing = [];
+    const required = form.querySelectorAll("[required]");
+    required.forEach(el => {
+      let ok = true;
+      if (el.type === "checkbox") ok = el.checked;
+      else ok = !!(el.value || "").trim();
 
-    const res = await fetch("/api/orders", { method:"POST", body: fd });
-    const data = await res.json().catch(()=>({}));
-    if(!res.ok || !data.ok){
-      throw new Error(data.error || "Submission failed");
+      el.classList.toggle("field-error", !ok);
+      if (!ok) missing.push(humanLabel(el));
+    });
+
+    const itemRows = form.querySelectorAll(".item-row");
+    if (itemRows.length === 0) missing.push("At least 1 item line");
+
+    if (missing.length) {
+      errorBox.style.display = "block";
+      errorBox.innerHTML =
+        `<strong>Please complete the required fields:</strong><ul>` +
+        missing.map(m => `<li>${m}</li>`).join("") +
+        `</ul>`;
+      errorBox.scrollIntoView({ behavior: "smooth", block: "start" });
+      return false;
     }
-    return data;
+
+    errorBox.style.display = "none";
+    errorBox.innerHTML = "";
+    return true;
   }
 
-  document.getElementById('quickOrderForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    try{
-      await postOrder(e.currentTarget, "q_itemsBody", "quick");
-      alert("Submitted! Check your email for confirmation.");
-      e.currentTarget.reset();
-      clearRows("q_itemsBody");
-    }catch(err){
-      alert(err.message);
-    }
-  });
+  async function submitOrder(form, errorBox) {
+    if (!validateForm(form, errorBox)) return;
 
-  document.getElementById('largeOrderForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    try{
-      await postOrder(e.currentTarget, "l_itemsBody", "large");
-      alert("Submitted! Check your email for confirmation.");
-      e.currentTarget.reset();
-      clearRows("l_itemsBody");
-    }catch(err){
-      alert(err.message);
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) { btn.disabled = true; btn.dataset._text = btn.textContent; btn.textContent = "Sending..."; }
+
+    try {
+      const fd = new FormData(form);
+      // Ensure items_json is set here
+      const itemsTbodyId = form.id === 'quickOrderForm' ? 'q_itemsBody' : 'l_itemsBody';
+      const rows = Array.from(document.querySelectorAll(`#${itemsTbodyId} .item-row`));
+      const items = rows.map(r => ({
+        qty: r.querySelector('input[name="qty[]"]')?.value || "",
+        desc: r.querySelector('textarea[name="desc[]"]')?.value || "",
+        material: r.querySelector('input[name="material[]"]')?.value || "",
+        notes: r.querySelector('textarea[name="notes[]"]')?.value || ""
+      })).filter(it => it.qty || it.desc || it.material || it.notes);
+
+      fd.append("order_type", form.id === 'quickOrderForm' ? 'quick' : 'large');
+      fd.set("items_json", JSON.stringify(items));
+
+      const res = await fetch("/api/orders", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        const msg = data.error || data.message || `Request failed (${res.status})`;
+        window.location.href = `/order-status.html?ok=0&msg=${encodeURIComponent(msg)}`;
+        return;
+      }
+
+      if (form && typeof form.reset === "function") form.reset();
+
+      const orderId = data.order_id || "";
+      const jobId = data.job_id || "";
+      window.location.href =
+        `/order-status.html?ok=1&order_id=${encodeURIComponent(orderId)}&job_id=${encodeURIComponent(jobId)}`;
+
+    } catch (err) {
+      window.location.href = `/order-status.html?ok=0&msg=${encodeURIComponent(err?.message || "Network error")}`;
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = btn.dataset._text || "Submit"; }
     }
-  });
+  }
+
+  // Hook up forms
+  const quickFormEl = document.getElementById("quickOrderForm");
+  const largeFormEl = document.getElementById("largeOrderForm");
+  if (quickFormEl) {
+    const errors = document.getElementById("formErrorsQuick");
+    quickFormEl.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(quickFormEl, errors); });
+  }
+  if (largeFormEl) {
+    const errors = document.getElementById("formErrorsLarge");
+    largeFormEl.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(largeFormEl, errors); });
+  }
 </script>
 
 </body>
