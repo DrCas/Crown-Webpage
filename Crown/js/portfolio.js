@@ -9,7 +9,7 @@
   const THUMB_FOLDER = "images/Collection/Thumbs/";
   const BASENAME = "slide-";
   const EXT = "webp";          // Change to "png" if your slides are png
-  const COUNT = 44;           // You said you currently have 44 images
+  const COUNT = 44;           // update if your slide count changes
   const AUTOPLAY_MS = 4500;   // slideshow speed
 
   // ====== ELEMENTS ======
@@ -25,17 +25,18 @@
 
   // ====== STATE ======
   const fullImages = Array.from({ length: COUNT }, (_, i) => `${FOLDER}${BASENAME}${i + 1}.${EXT}`);
-  // Thumbnails: uses THUMB_FOLDER; if you don’t have thumbs yet, set THUMB_FOLDER = FOLDER
   const thumbImages = Array.from({ length: COUNT }, (_, i) => `${THUMB_FOLDER}${BASENAME}${i + 1}.${EXT}`);
   let idx = 0;
   let autoplay = null;
 
   // ====== HELPERS ======
   function updateStatus() {
+    if (!statusEl) return;
     statusEl.textContent = fullImages.length ? `${idx + 1} / ${fullImages.length}` : "";
   }
 
   function openLightbox(url, label) {
+    if (!lightbox) return;
     lightboxImg.src = url;
     lightboxCaption.textContent = label || "";
     lightbox.classList.remove("hidden");
@@ -44,6 +45,7 @@
   }
 
   function closeLightbox() {
+    if (!lightbox) return;
     lightbox.classList.add("hidden");
     lightbox.setAttribute("aria-hidden", "true");
     lightboxImg.removeAttribute("src");
@@ -51,6 +53,7 @@
   }
 
   function renderSlide() {
+    if (!slidesTrack) return;
     slidesTrack.innerHTML = "";
     const fig = document.createElement("figure");
     fig.className = "slide active";
@@ -60,7 +63,6 @@
     img.alt = `Portfolio image ${idx + 1}`;
     img.draggable = false;
 
-    // slideshow is NOT interactable
     img.style.cursor = "default";
     img.style.pointerEvents = "none";
 
@@ -83,11 +85,10 @@
     autoplay = null;
   }
 
-  // ====== GALLERY RENDER (PERFORMANCE FRIENDLY) ======
+  // ====== GALLERY RENDER ======
   function renderGallery() {
+    if (!galleryEl) return;
     galleryEl.innerHTML = "";
-
-    // Use a document fragment to avoid layout thrash
     const frag = document.createDocumentFragment();
 
     fullImages.forEach((url, i) => {
@@ -98,26 +99,17 @@
 
       const img = document.createElement("img");
       img.alt = `Portfolio thumbnail ${i + 1}`;
-
-      // Lazy load (native)
       img.loading = "lazy";
       img.decoding = "async";
-
-      // We'll set src via IntersectionObserver for even smoother scrolling
       img.dataset.src = thumbImages[i] || url;
 
       btn.appendChild(img);
-
-      btn.addEventListener("click", () => {
-        openLightbox(url, `Image ${i + 1} / ${fullImages.length}`);
-      });
-
+      btn.addEventListener("click", () => openLightbox(url, `Image ${i + 1} / ${fullImages.length}`));
       frag.appendChild(btn);
     });
 
     galleryEl.appendChild(frag);
 
-    // IntersectionObserver: only assign real src when near viewport
     const io = new IntersectionObserver((entries, obs) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
@@ -135,15 +127,13 @@
   }
 
   // ====== LIGHTBOX EVENTS ======
-  lightboxClose.addEventListener("click", closeLightbox);
-  lightboxBackdrop.addEventListener("click", closeLightbox);
+  if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
+  if (lightboxBackdrop) lightboxBackdrop.addEventListener("click", closeLightbox);
 
-  // Close on ESC
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !lightbox.classList.contains("hidden")) closeLightbox();
+    if (e.key === "Escape" && lightbox && !lightbox.classList.contains("hidden")) closeLightbox();
   });
 
-  // Pause autoplay when tab not visible (saves CPU / avoids weird jumps)
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stopAutoplay();
     else startAutoplay();
@@ -151,7 +141,7 @@
 
   // ====== INIT ======
   if (!fullImages.length) {
-    statusEl.textContent = "No images found.";
+    if (statusEl) statusEl.textContent = "No images found.";
     return;
   }
 
