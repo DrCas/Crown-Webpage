@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
 from flask import Blueprint, current_app, jsonify, request
 from werkzeug.utils import secure_filename
@@ -33,6 +33,99 @@ ALLOWED_EXTS = {
 def _allowed(filename: str) -> bool:
     _, ext = os.path.splitext(filename.lower())
     return ext in ALLOWED_EXTS
+
+
+def _po_key_for_date(d: date) -> str:
+    """Generate PO key in MMDDYY format"""
+    return d.strftime("%m%d%y")
+
+
+def _next_po_seq(po_date_key: str) -> int:
+    """Get next sequence number for a given PO date key"""
+    from app import db, Job
+    
+    result = db.session.query(db.func.max(Job.po_seq)).filter(
+        Job.po_date_key == po_date_key
+    ).scalar()
+    return (result or 0) + 1
+
+
+def _insert_job_from_intake(
+    order_id: str,
+    order_type: str,
+    form_fields: dict,
+    items: list,
+    saved_files: list,
+) -> int:
+    """Insert a new job from website intake form"""
+    from app import db, Job, JobLog
+    
+    received = date.today()
+    created = datetime.now()
+
+    po_key = _po_key_for_date(received)
+    po_seq = _next_po_seq(po_key)
+
+    customer_name = (form_fields.get("name") or "").strip() or "Website Customer"
+    business_name = (form_fields.get("company") or "").strip()
+    phone_number = (form_fields.get("phone") or "").strip()
+    email_address = (form_fields.get("email") or "").strip()
+
+    summary = (form_fields.get("summary") or "").strip()
+    job_title = "Website Order — " + ("Quick" if order_type == "quick" else "Large")
+
+    # Store both a readable summary and the raw JSON payload
+    submission_payload = {
+        "order_id": order_id,
+        "order_type": order_type,
+        "fields": form_fields,
+        "items": items,
+        "saved_files": saved_files,
+        "received_date": received.isoformat(),
+        "created_at": created.isoformat(sep=" "),
+    }
+
+    job_details = json.dumps(submission_payload, indent=2)
+
+    # Create the job
+    job = Job(
+        customer_name=customer_name,
+        business_name=business_name if business_name else None,
+        phone_number=phone_number if phone_number else None,
+        email_address=email_address if email_address else None,
+        job_title=job_title,
+        job_summary=summary if summary else None,
+        job_details=job_details,
+        quote_amount=None,
+        received_date=received,
+        created_at=created,
+        stage="Received",
+        po_date_key=po_key,
+        po_seq=po_seq,
+        is_new=1,
+        source="website",
+        intake_order_id=order_id,
+        submission_json=json.dumps(submission_payload),
+        uploaded_files_json=json.dumps(saved_files),
+    )
+
+    db.session.add(job)
+    db.session.flush()  # Flush to get the job_id before commit
+    job_id = job.id
+
+    # Create the log entry
+    log_entry = JobLog(
+        job_id=job_id,
+        timestamp=created,
+        actor_username="website",
+        action="created",
+        details=f"Created from website intake order_id={order_id}",
+    )
+
+    db.session.add(log_entry)
+    db.session.commit()
+
+    return job_id
 
 
 @orders_api.post("/orders")
@@ -137,11 +230,30 @@ def create_order():
         email_error = str(e)
 
     # -----------------------------
+    # Save to database
+    # -----------------------------
+    job_id = None
+    db_error = None
+    try:
+        job_id = _insert_job_from_intake(
+            order_id=order_id,
+            order_type=order_type,
+            form_fields=form,
+            items=items,
+            saved_files=saved_files,
+        )
+    except Exception as e:
+        current_app.logger.exception("Database insert failed")
+        db_error = str(e)
+
+    # -----------------------------
     # Response
     # -----------------------------
     return jsonify({
         "ok": True,
         "order_id": order_id,
+        "job_id": job_id,
         "email_sent": email_sent,
         "email_error": email_error,
+        "db_error": db_error,
     }), 201

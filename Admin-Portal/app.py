@@ -91,6 +91,13 @@ class Job(db.Model):
     po_date_key = db.Column(db.String(6), nullable=False, index=True)  # MMDDYY
     po_seq = db.Column(db.Integer, nullable=False)  # 1..99
 
+    # Website intake fields
+    is_new = db.Column(db.Integer, default=1, nullable=False)  # 1 = new, 0 = reviewed
+    source = db.Column(db.String(40), nullable=True)  # "website", "phone", "email", etc.
+    intake_order_id = db.Column(db.String(80), nullable=True, index=True)  # from website intake
+    submission_json = db.Column(db.Text, nullable=True)  # full submission payload
+    uploaded_files_json = db.Column(db.Text, nullable=True)  # JSON array of file paths
+
 
 class JobLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
