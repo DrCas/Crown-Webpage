@@ -21,6 +21,8 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+import os
+app.config["STATIC_VERSION"] = os.getenv("STATIC_VERSION", "1")
 @app.template_filter("prettyjson")
 def prettyjson_filter(value):
     try:
