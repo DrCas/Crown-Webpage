@@ -1,6 +1,6 @@
 :root{
   --bg: #0b0b0b;
-  --panel: rgba(255,255,255,.08);
+  --panel: transparent;
   --panel-2: rgba(255,255,255,.12);
   --text: #f3f3f3;
   --muted: rgba(255,255,255,.7);
@@ -79,12 +79,13 @@ a{ color: inherit; text-decoration:none; }
 }
 
 .panel{
-  background: var(--panel);
-  border: 1px solid rgba(255,255,255,.10);
+  background: transparent;
+  border: none;
   border-radius: var(--radius);
   padding: 18px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  box-shadow: none;
 }
+
 
 .grid{
   display:grid;
