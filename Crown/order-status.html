@@ -75,9 +75,15 @@
     }
   </script>
 
-  <footer class="site-footer">
-    <p>© 2026 Crown Graphics. All rights reserved.</p>
-  </footer>
+  <footer>
+  <div class="container">
+    <p>&copy; <span id="year"></span> Crown Graphics | All Rights Reserved</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>

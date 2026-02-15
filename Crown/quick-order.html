@@ -595,61 +595,6 @@
     return true;
   }
 
-  async function submitOrder(form, errorBox) {
-    if (!validateForm(form, errorBox)) return;
-
-    const btn = form.querySelector('button[type="submit"]');
-    if (btn) { btn.disabled = true; btn.dataset._text = btn.textContent; btn.textContent = "Sending..."; }
-
-    try {
-      const fd = new FormData(form);
-      // Ensure items_json is set here
-      const itemsTbodyId = form.id === 'quickOrderForm' ? 'q_itemsBody' : 'l_itemsBody';
-      const rows = Array.from(document.querySelectorAll(`#${itemsTbodyId} .item-row`));
-      const items = rows.map(r => ({
-        qty: r.querySelector('input[name="qty[]"]')?.value || "",
-        desc: r.querySelector('textarea[name="desc[]"]')?.value || "",
-        material: r.querySelector('input[name="material[]"]')?.value || "",
-        notes: r.querySelector('textarea[name="notes[]"]')?.value || ""
-      })).filter(it => it.qty || it.desc || it.material || it.notes);
-
-      fd.append("order_type", form.id === 'quickOrderForm' ? 'quick' : 'large');
-      fd.set("items_json", JSON.stringify(items));
-
-      const res = await fetch("/api/orders", { method: "POST", body: fd });
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || !data.ok) {
-        const msg = data.error || data.message || `Request failed (${res.status})`;
-        window.location.href = `/order-status.html?ok=0&msg=${encodeURIComponent(msg)}`;
-        return;
-      }
-
-      if (form && typeof form.reset === "function") form.reset();
-
-      const orderId = data.order_id || "";
-      const jobId = data.job_id || "";
-      window.location.href =
-        `/order-status.html?ok=1&order_id=${encodeURIComponent(orderId)}&job_id=${encodeURIComponent(jobId)}`;
-
-    } catch (err) {
-      window.location.href = `/order-status.html?ok=0&msg=${encodeURIComponent(err?.message || "Network error")}`;
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = btn.dataset._text || "Submit"; }
-    }
-  }
-
-  // Hook up forms
-  const quickFormEl = document.getElementById("quickOrderForm");
-  const largeFormEl = document.getElementById("largeOrderForm");
-  if (quickFormEl) {
-    const errors = document.getElementById("formErrorsQuick");
-    quickFormEl.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(quickFormEl, errors); });
-  }
-  if (largeFormEl) {
-    const errors = document.getElementById("formErrorsLarge");
-    largeFormEl.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(largeFormEl, errors); });
-  }
 </script>
 
 </body>
