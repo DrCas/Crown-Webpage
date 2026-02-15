@@ -333,3 +333,21 @@ select option {
   font-size: 12px;
   color: var(--muted);
 }
+
+.details-pre{
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.4;
+
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+
+  padding: 14px;
+  margin-top: 8px;
+
+  max-height: 420px;
+  overflow: auto;
+}

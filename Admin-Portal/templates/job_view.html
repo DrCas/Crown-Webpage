@@ -82,9 +82,14 @@
     </div>
 
     <div style="margin-top:14px;">
-      <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">Summary</div>
-      <div style="margin-top:6px;">{{ job.job_summary or "—" }}</div>
-    </div>
+  <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">
+    Details / Notes
+  </div>
+
+  <pre class="details-pre">
+{{ job.job_details or "—" }}
+  </pre>
+</div>
 
     <div style="margin-top:14px;">
       <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">Details / Notes</div>
