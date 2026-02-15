@@ -1,21 +1,20 @@
 {% extends "base.html" %}
-{% set active = "new" %}
 {% block content %}
 <div class="job-form-page">
   <div class="page-header">
     <div>
-      <h1>Create Job</h1>
-      <div class="muted">Same fields as your estimate sheet. Edit later from the job page.</div>
+      <h1>Edit Job <span class="muted">{{ po_display(job) }}</span></h1>
+      <div class="muted">This is the only place to edit job data. Job view stays clean.</div>
     </div>
     <div class="page-actions">
-      <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back</a>
+      <a class="btn btn-secondary" href="{{ url_for('job_view', job_id=job.id) }}">Back to Job</a>
     </div>
   </div>
 
   <form method="POST" class="form-root">
     {% include "_job_form.html" %}
     <div class="form-actions">
-      <button class="btn btn-primary" type="submit">Create Job</button>
+      <button class="btn btn-primary" type="submit">Save Changes</button>
     </div>
   </form>
 </div>

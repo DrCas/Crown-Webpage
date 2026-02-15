@@ -1,212 +1,235 @@
 {% extends "base.html" %}
 {% block content %}
-
-<div class="panel">
-  <div class="h1">{{ job_display_name(job) }}</div>
-  <p class="sub">
-    Customer: <b>{{ job.customer_name }}</b>
-    {% if job.business_name %} • Business: <b>{{ job.business_name }}</b>{% endif %}
-    • Received: <b>{{ job.received_date|mmddyyyy_date }}</b>
-    • Created: <b>{{ job.created_at|mmddyyyy_dt }}</b>
-  </p>
-
-  <div class="progress-wrap">
-    <div class="progress-labels">
-      {% for s in STAGES %}
-        <span title="{{ s }}">{{ s }}</span>
-      {% endfor %}
+<div class="job-view-page">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>{{ job_display_name(job) }}</h1>
+      <div class="subtle">
+        PO: <span class="mono">{{ po_display(job) }}</span>
+        • Received: {{ job.received_date|mmddyyyy_date }}
+        • Created: {{ job.created_at|mmddyyyy_dt }}
+        {% if job.source %} • Source: {{ job.source }}{% endif %}
+      </div>
     </div>
 
-    <div class="progress-bar">
-      {% set idx = stage_index(job) %}
-      {% for s in STAGES %}
-        {% set i = loop.index0 %}
-        <div class="seg
-          {% if i < idx %}done{% elif i == idx %}current{% else %}pending{% endif %}
-        "></div>
-      {% endfor %}
+    <div class="page-actions">
+      <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('job_edit', job_id=job.id) }}">Edit</a>
+      {% if current_user.is_admin() %}
+      <form method="POST" action="{{ url_for('job_delete', job_id=job.id) }}" style="display:inline;">
+        <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this job permanently?');">Delete</button>
+      </form>
+      {% endif %}
     </div>
   </div>
 
-  <form method="post" class="btnrow" style="margin-top:14px;">
-    <input type="hidden" name="action" value="update_stage" />
-    <select name="stage" class="btn btn-ghost" style="padding: 11px 14px;">
-      {% for s in STAGES %}
-        <option value="{{ s }}" {% if s == job.stage %}selected{% endif %}>{{ s }}</option>
-      {% endfor %}
-    </select>
-    <button class="btn btn-primary" type="submit">Update Progress</button>
-  </form>
-  {% if current_user.is_admin() %}
-    <form method="post" action="{{ url_for('job_delete', job_id=job.id) }}" class="btnrow" style="margin-top:8px;">
-      <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this job and all associated logs? This cannot be undone.');">Delete Job (Admin)</button>
+  <section class="card box">
+    <div class="card-title">Overview</div>
+
+    <div class="overview-grid">
+      <div class="overview-item">
+        <div class="label">PO Number</div>
+        <div class="value mono">{{ po_display(job) or "—" }}</div>
+      </div>
+      <div class="overview-item">
+        <div class="label">Date Received</div>
+        <div class="value">{{ job.received_date|mmddyyyy_date }}</div>
+      </div>
+      <div class="overview-item">
+        <div class="label">Stage</div>
+        <div class="value"><span class="pill">{{ job.stage }}</span></div>
+      </div>
+      <div class="overview-item">
+        <div class="label">Needed By</div>
+        <div class="value">{{ job.needed_by_date|mmddyyyy_date if job.needed_by_date else "—" }}</div>
+      </div>
+    </div>
+
+    <form method="POST" class="stage-form">
+      <input type="hidden" name="action" value="update_stage">
+      <div class="stage-row">
+        <div class="stage-left">
+          <label class="small-label">Update Stage</label>
+          <select name="stage">
+            {% for s in STAGES %}
+              <option value="{{ s }}" {% if s == job.stage %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-secondary" type="submit">Update Progress</button>
+      </div>
     </form>
-  {% endif %}
-</div>
 
-<div class="grid grid-2" style="margin-top:16px;">
-  <div class="panel">
-    <div class="h1">Job Details</div>
-
-    <div class="kv">
-      <div class="item">
-        <div class="k">Phone</div>
-        <div class="v">{{ job.phone_number or "—" }}</div>
+    {% set idx = stage_index(job) %}
+    <div class="progress-wrap" aria-label="Job progress">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ (idx / (STAGES|length - 1)) * 100 }}%"></div>
       </div>
-      <div class="item">
-        <div class="k">Email</div>
-        <div class="v">{{ job.email_address or "—" }}</div>
-      </div>
-      <div class="item">
-        <div class="k">PO</div>
-        <div class="v"><b>{{ job.po_date_key }}-{{ "%02d"|format(job.po_seq) }}</b></div>
-      </div>
-      <div class="item">
-        <div class="k">Current Stage</div>
-        <div class="v"><b>{{ job.stage }}</b></div>
-      </div>
-      <div class="item">
-        <div class="k">Quote</div>
-        <div class="v">
-          {% if job.quote_amount is not none %}
-            ${{ "%.2f"|format(job.quote_amount) }}
-          {% else %}
-            —
-          {% endif %}
-        </div>
-      </div>
-      <div class="item">
-        <div class="k">Date Received</div>
-        <div class="v"><b>{{ job.received_date|mmddyyyy_date }}</b></div>
+      <div class="progress-meta">
+        <span class="muted">{{ job.stage }}</span>
       </div>
     </div>
+  </section>
 
-    <div style="margin-top:14px;">
-  <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">
-    Details / Notes
-  </div>
-
-  <pre class="details-pre">
-{{ job.job_details or "—" }}
-  </pre>
-</div>
-
-    {% if job.submission_json %}
-      <div style="margin-top:14px;">
-        <div class="small" style="font-weight:900; letter-spacing:.5px; text-transform:uppercase;">Order Intake</div>
-
-        <div class="intake-grid" style="margin-top:8px;">
-          <div class="intake-card">
-            <div class="kv"><span>Name</span><span>{{ job.customer_name }}</span></div>
-            <div class="kv"><span>Email</span><span>{{ job.email_address or '—' }}</span></div>
-            <div class="kv"><span>Phone</span><span>{{ job.phone_number or '—' }}</span></div>
-            <div class="kv"><span>Source</span><span>{{ job.source or '—' }}</span></div>
-          </div>
-
-          <div class="intake-card">
-            <h4 style="margin:0 0 6px 0;">Summary</h4>
-            <div>{{ job.job_summary or "—" }}</div>
-            <div style="margin-top:8px; font-size:0.95rem; color:var(--muted);">Order ID: <b>{{ job.intake_order_id }}</b></div>
+  <div class="two-col">
+    <section class="card box">
+      <div class="card-title">Customer</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="label">Name</div><div class="value">{{ job.customer_name or "—" }}</div></div>
+        <div class="info-row"><div class="label">Company</div><div class="value">{{ job.business_name or "—" }}</div></div>
+        <div class="info-row"><div class="label">Phone</div><div class="value">{{ job.phone_number or "—" }}</div></div>
+        <div class="info-row"><div class="label">Cell</div><div class="value">{{ job.cell or "—" }}</div></div>
+        <div class="info-row">
+          <div class="label">Email</div>
+          <div class="value">{% if job.email_address %}<a href="mailto:{{ job.email_address }}">{{ job.email_address }}</a>{% else %}—{% endif %}</div>
+        </div>
+        <div class="info-row">
+          <div class="label">Address</div>
+          <div class="value">
+            {% set parts = [] %}
+            {% if job.address_1 %}{% set _ = parts.append(job.address_1) %}{% endif %}
+            {% if job.address_2 %}{% set _ = parts.append(job.address_2) %}{% endif %}
+            {% if job.city or job.state or job.zip_code %}
+              {% set line = (job.city or "") ~ (", " if job.city and job.state else "") ~ (job.state or "") ~ (" " if (job.city or job.state) and job.zip_code else "") ~ (job.zip_code or "") %}
+              {% set _ = parts.append(line.strip()) %}
+            {% endif %}
+            {% if parts|length %}{{ parts|join("<br>")|safe }}{% else %}—{% endif %}
           </div>
         </div>
+      </div>
+    </section>
 
-        <details class="raw-json" style="margin-top:10px;">
-          <summary>View Raw Intake JSON</summary>
-          <pre>{{ job.submission_json | prettyjson }}</pre>
-        </details>
+    <section class="card box">
+      <div class="card-title">Job Details</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="label">Title</div><div class="value">{{ job.job_title or "—" }}</div></div>
+        <div class="info-row"><div class="label">Work Order</div><div class="value">{{ job.work_order or "—" }}</div></div>
+        <div class="info-row"><div class="label">Crown Rep</div><div class="value">{{ job.crown_rep or "—" }}</div></div>
+        <div class="info-row"><div class="label">Approval Date</div><div class="value">{{ job.approval_date|mmddyyyy_date if job.approval_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Scheduled</div><div class="value">{{ job.scheduled_date|mmddyyyy_date if job.scheduled_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Completed</div><div class="value">{{ job.completed_date|mmddyyyy_date if job.completed_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Pick-Up Date</div><div class="value">{{ job.pickup_date|mmddyyyy_date if job.pickup_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Quote</div><div class="value">{% if job.quote_amount is not none %}${{ "%.2f"|format(job.quote_amount) }}{% else %}—{% endif %}</div></div>
+        {% if job.job_summary %}
+        <div class="info-row"><div class="label">Summary</div><div class="value prewrap">{{ job.job_summary }}</div></div>
+        {% endif %}
+        {% if job.summary_of_work %}
+        <div class="info-row"><div class="label">Work Summary</div><div class="value prewrap">{{ job.summary_of_work }}</div></div>
+        {% endif %}
+        {% if job.job_details %}
+        <div class="info-row"><div class="label">Details</div><div class="value prewrap">{{ job.job_details }}</div></div>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+
+  <section class="card box">
+    <div class="card-title">Line Items</div>
+    {% if job.line_items %}
+      <div class="table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:80px;">Qty</th>
+              <th>Description</th>
+              <th style="width:160px;">Material</th>
+              <th style="width:160px;">Labor</th>
+              <th style="width:160px;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for li in job.line_items %}
+              <tr>
+                <td>{{ li.qty if li.qty is not none else "—" }}</td>
+                <td class="prewrap">{{ li.description or "—" }}</td>
+                <td>{{ ("$%.2f"|format(li.material_price)) if li.material_price is not none else "—" }}</td>
+                <td>{{ ("$%.2f"|format(li.labor_price)) if li.labor_price is not none else "—" }}</td>
+                <td>{{ ("$%.2f"|format(li.line_total)) if li.line_total is not none else "—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="muted">No line items yet.</div>
+    {% endif %}
+  </section>
+
+  {% if current_user.is_admin() %}
+  <section class="card box">
+    <div class="card-title">Audit Log (Admin Only)</div>
+    {% if not logs %}
+      <div class="muted">No log entries yet.</div>
+    {% else %}
+      <div class="table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:180px;">Time</th>
+              <th style="width:160px;">User</th>
+              <th style="width:160px;">Action</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in logs %}
+              <tr>
+                <td>{{ entry.timestamp|mmddyyyy_dt }}</td>
+                <td>{{ entry.actor_username or "—" }}</td>
+                <td>{{ entry.action }}</td>
+                <td class="prewrap">{{ entry.details or "—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     {% endif %}
-  </div>
+  </section>
+  {% endif %}
 
-  <div class="panel">
-    <div class="h1">Edit Job</div>
-    <p class="sub">Staff can update any field. (Customer Name + Job Title required.)</p>
-
-    <form class="form" method="post" style="margin-top:14px;">
-      <input type="hidden" name="action" value="save_edits" />
-
-      <div class="field">
-        <label>Customer Name *</label>
-        <input name="customer_name" value="{{ job.customer_name }}" required />
-      </div>
-
-      <div class="field">
-        <label>Business Name</label>
-        <input name="business_name" value="{{ job.business_name or '' }}" />
-      </div>
-
-      <div class="field">
-        <label>Date Received (MM-DD-YYYY)</label>
-        <input name="received_date" value="{{ job.received_date|mmddyyyy_date }}" />
-      </div>
-
-      <div class="field">
-        <label>Phone Number</label>
-        <input name="phone_number" value="{{ job.phone_number or '' }}" />
-      </div>
-
-      <div class="field">
-        <label>Email Address</label>
-        <input type="email" name="email_address" value="{{ job.email_address or '' }}" />
-      </div>
-
-      <div class="field">
-        <label>Job Title *</label>
-        <input name="job_title" value="{{ job.job_title }}" required />
-      </div>
-
-      <div class="field">
-        <label>Job Summary</label>
-        <input name="job_summary" value="{{ job.job_summary or '' }}" />
-      </div>
-
-      <div class="field">
-        <label>Job Details</label>
-        <textarea name="job_details">{{ job.job_details or '' }}</textarea>
-      </div>
-
-      <div class="field">
-        <label>Estimated Quote ($)</label>
-        <input type="number" step="0.01" name="quote_amount"
-               value="{% if job.quote_amount is not none %}{{ '%.2f'|format(job.quote_amount) }}{% endif %}" />
-      </div>
-
-      <button class="btn btn-primary" type="submit">Save Changes</button>
-    </form>
-  </div>
 </div>
 
-{% if current_user.is_admin() %}
-  <div class="panel" style="margin-top:16px;">
-    <div class="h1">Audit Log (Admin Only)</div>
-    <p class="sub">Tracks who changed progress/fields and when.</p>
+<style>
+  .job-view-page { max-width: 1200px; margin: 0 auto; padding: 18px 14px; }
+  .page-header { display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; margin-bottom: 14px; flex-wrap:wrap; }
+  .page-title h1 { margin: 0; font-size: 1.45rem; letter-spacing: .2px; }
+  .subtle { opacity: .8; margin-top: 4px; }
+  .muted { opacity: .75; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
-    <div style="overflow:auto; margin-top:12px;">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>User</th>
-            <th>Action</th>
-            <th>Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if not logs %}
-            <tr><td colspan="4">No log entries yet.</td></tr>
-          {% endif %}
-          {% for entry in logs %}
-            <tr>
-              <td>{{ entry.timestamp|mmddyyyy_dt }}</td>
-              <td>{{ entry.actor_username or "—" }}</td>
-              <td><b>{{ entry.action }}</b></td>
-              <td>{{ entry.details or "—" }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-{% endif %}
+  .two-col { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
 
+  .card.box { border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); backdrop-filter: blur(10px); }
+  .card-title { font-weight: 800; margin-bottom: 10px; letter-spacing: .2px; }
+
+  .overview-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 900px) { .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .overview-item { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.14); border: 1px solid rgba(255,255,255,.08); }
+  .overview-item .label { font-size: .78rem; opacity: .78; margin-bottom: 4px; }
+  .overview-item .value { font-size: 1rem; font-weight: 800; }
+  .pill { display:inline-flex; align-items:center; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.10); font-weight: 800; font-size: .85rem; }
+
+  .stage-form { margin-top: 12px; }
+  .stage-row { display:flex; justify-content:space-between; gap: 12px; align-items:end; flex-wrap:wrap; }
+  .stage-left { min-width: 260px; }
+  .small-label { display:block; font-size:.82rem; opacity:.85; margin-bottom: 6px; }
+  select { width:100%; padding: 10px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.18); color: inherit; }
+
+  .progress-wrap { margin-top: 12px; }
+  .progress-bar { height: 10px; width: 100%; border-radius: 999px; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.10); overflow:hidden; }
+  .progress-fill { height: 100%; border-radius: 999px; background: rgba(255,255,255,.65); }
+  .progress-meta { display:flex; justify-content:flex-end; margin-top: 6px; font-size: .85rem; }
+
+  .info-grid { display:flex; flex-direction:column; gap: 10px; }
+  .info-row { display:grid; grid-template-columns: 160px 1fr; gap: 10px; align-items:start; }
+  @media (max-width: 500px) { .info-row { grid-template-columns: 1fr; } }
+  .info-row .label { font-size: .82rem; opacity: .78; }
+  .info-row .value { font-weight: 650; }
+  .prewrap { white-space: pre-wrap; line-height: 1.35; }
+
+  .table-wrap { overflow:auto; }
+  .items-table { width:100%; border-collapse: collapse; }
+  .items-table th, .items-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,.10); vertical-align: top; text-align: left; }
+</style>
 {% endblock %}

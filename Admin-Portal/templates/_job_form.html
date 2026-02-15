@@ -1,0 +1,368 @@
+{# templates/_job_form.html : shared by job_new + job_edit #}
+<div class="form-grid">
+
+  <section class="card box">
+    <div class="card-title">Customer</div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Customer Name <span class="req">*</span></label>
+        <input name="customer_name" value="{{ job.customer_name if job else '' }}" required>
+      </div>
+      <div class="field">
+        <label>Company</label>
+        <input name="business_name" value="{{ job.business_name if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Phone</label>
+        <input name="phone_number" value="{{ job.phone_number if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Cell</label>
+        <input name="cell" value="{{ job.cell if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Email</label>
+        <input name="email_address" value="{{ job.email_address if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Crown Rep</label>
+        <input name="crown_rep" value="{{ job.crown_rep if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Address 1</label>
+        <input name="address_1" value="{{ job.address_1 if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Address 2</label>
+        <input name="address_2" value="{{ job.address_2 if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>City</label>
+        <input name="city" value="{{ job.city if job else '' }}">
+      </div>
+      <div class="field">
+        <label>State</label>
+        <input name="state" value="{{ job.state if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Zip</label>
+        <input name="zip_code" value="{{ job.zip_code if job else '' }}">
+      </div>
+    </div>
+  </section>
+
+  <section class="card box">
+    <div class="card-title">Job</div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Job Title <span class="req">*</span></label>
+        <input name="job_title" value="{{ job.job_title if job else '' }}" required>
+      </div>
+      <div class="field">
+        <label>Work Order</label>
+        <input name="work_order" value="{{ job.work_order if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Date Received (MM-DD-YYYY)</label>
+        <input name="received_date" value="{{ job.received_date|mmddyyyy_date if job and job.received_date else '' }}">
+      </div>
+      <div class="field">
+        <label>Needed By (MM-DD-YYYY)</label>
+        <input name="needed_by_date" value="{{ job.needed_by_date|mmddyyyy_date if job and job.needed_by_date else '' }}">
+      </div>
+      <div class="field">
+        <label>Approval Date (MM-DD-YYYY)</label>
+        <input name="approval_date" value="{{ job.approval_date|mmddyyyy_date if job and job.approval_date else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Scheduled (MM-DD-YYYY)</label>
+        <input name="scheduled_date" value="{{ job.scheduled_date|mmddyyyy_date if job and job.scheduled_date else '' }}">
+      </div>
+      <div class="field">
+        <label>Completed (MM-DD-YYYY)</label>
+        <input name="completed_date" value="{{ job.completed_date|mmddyyyy_date if job and job.completed_date else '' }}">
+      </div>
+      <div class="field">
+        <label>Pick-Up Date (MM-DD-YYYY)</label>
+        <input name="pickup_date" value="{{ job.pickup_date|mmddyyyy_date if job and job.pickup_date else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Job Summary</label>
+        <input name="job_summary" value="{{ job.job_summary if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Estimated Quote ($)</label>
+        <input name="quote_amount" value="{{ '%.2f'|format(job.quote_amount) if job and job.quote_amount is not none else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Summary of Work</label>
+        <textarea name="summary_of_work" rows="3">{{ job.summary_of_work if job else '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>Details</label>
+        <textarea name="job_details" rows="3">{{ job.job_details if job else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Internal Notes</label>
+      <textarea name="internal_notes" rows="3">{{ job.internal_notes if job else '' }}</textarea>
+    </div>
+  </section>
+
+  <section class="card box">
+    <div class="card-title">Vehicle / Proof</div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Mfd Date (MM-DD-YYYY)</label>
+        <input name="mfd_date" value="{{ job.mfd_date|mmddyyyy_date if job and job.mfd_date else '' }}">
+      </div>
+      <div class="field">
+        <label>Make</label>
+        <input name="vehicle_make" value="{{ job.vehicle_make if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Model</label>
+        <input name="vehicle_model" value="{{ job.vehicle_model if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>VIN #</label>
+        <input name="vin" value="{{ job.vin if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Unit #</label>
+        <input name="unit_number" value="{{ job.unit_number if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Proof #</label>
+        <input name="proof_number" value="{{ job.proof_number if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Proof Approved Date (MM-DD-YYYY)</label>
+        <input name="proof_approved_date" value="{{ job.proof_approved_date|mmddyyyy_date if job and job.proof_approved_date else '' }}">
+      </div>
+      <div class="field">
+        <label>Size/Location Proof</label>
+        <input name="size_location_proof" value="{{ job.size_location_proof if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Inspected By</label>
+        <input name="inspected_by" value="{{ job.inspected_by if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Inspected Date (MM-DD-YYYY)</label>
+        <input name="inspected_date" value="{{ job.inspected_date|mmddyyyy_date if job and job.inspected_date else '' }}">
+      </div>
+    </div>
+  </section>
+
+  <section class="card box">
+    <div class="card-title">Line Items</div>
+
+    <div class="table-wrap">
+      <table class="items-table" id="itemsTable">
+        <thead>
+          <tr>
+            <th style="width:80px;">Qty</th>
+            <th>Description of Work</th>
+            <th style="width:160px;">Material</th>
+            <th style="width:160px;">Labor</th>
+            <th style="width:160px;">Total</th>
+            <th style="width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody">
+          {% if job and job.line_items %}
+            {% for li in job.line_items %}
+              <tr class="item-row">
+                <td><input name="item_qty[]" value="{{ li.qty if li.qty is not none else '' }}" inputmode="numeric"></td>
+                <td><input name="item_desc[]" value="{{ li.description or '' }}"></td>
+                <td><input name="item_material[]" value="{{ '%.2f'|format(li.material_price) if li.material_price is not none else '' }}"></td>
+                <td><input name="item_labor[]" value="{{ '%.2f'|format(li.labor_price) if li.labor_price is not none else '' }}"></td>
+                <td class="item-total muted" data-total>—</td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">×</button></td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr class="item-row">
+              <td><input name="item_qty[]" inputmode="numeric"></td>
+              <td><input name="item_desc[]"></td>
+              <td><input name="item_material[]"></td>
+              <td><input name="item_labor[]"></td>
+              <td class="item-total muted" data-total>—</td>
+              <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">×</button></td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row-actions">
+      <button type="button" class="btn btn-secondary" onclick="addRow()">+ Add Row</button>
+    </div>
+  </section>
+
+  <section class="card box">
+    <div class="card-title">Shipping / Field / Totals</div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Shipping Date (MM-DD-YYYY)</label>
+        <input name="shipping_date" value="{{ job.shipping_date|mmddyyyy_date if job and job.shipping_date else '' }}">
+      </div>
+      <div class="field">
+        <label>Shipping Type</label>
+        <input name="shipping_type" value="{{ job.shipping_type if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Tracking #</label>
+        <input name="tracking_number" value="{{ job.tracking_number if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Ship To (multiline)</label>
+        <textarea name="ship_to" rows="3">{{ job.ship_to if job else '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>Pick-up Name</label>
+        <input name="pickup_name" value="{{ job.pickup_name if job else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Field Service Location</label>
+        <input name="field_service_location" value="{{ job.field_service_location if job else '' }}">
+      </div>
+      <div class="field">
+        <label>Field Charge</label>
+        <input name="field_charge" value="{{ '%.2f'|format(job.field_charge) if job and job.field_charge is not none else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Tax Rate (%)</label>
+        <input name="tax_rate" value="{{ '%.2f'|format(job.tax_rate) if job and job.tax_rate is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Sales Tax</label>
+        <input name="sales_tax" value="{{ '%.2f'|format(job.sales_tax) if job and job.sales_tax is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Shipping & Handling</label>
+        <input name="shipping_handling" value="{{ '%.2f'|format(job.shipping_handling) if job and job.shipping_handling is not none else '' }}">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Materials Total</label>
+        <input name="materials_total" value="{{ '%.2f'|format(job.materials_total) if job and job.materials_total is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Labor Total</label>
+        <input name="labor_total" value="{{ '%.2f'|format(job.labor_total) if job and job.labor_total is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Grand Total</label>
+        <input name="grand_total" value="{{ '%.2f'|format(job.grand_total) if job and job.grand_total is not none else '' }}">
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  function addRow() {
+    const tbody = document.getElementById('itemsBody');
+    const tr = document.createElement('tr');
+    tr.className = 'item-row';
+    tr.innerHTML = `
+      <td><input name="item_qty[]" inputmode="numeric"></td>
+      <td><input name="item_desc[]"></td>
+      <td><input name="item_material[]"></td>
+      <td><input name="item_labor[]"></td>
+      <td class="item-total muted" data-total>—</td>
+      <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">×</button></td>
+    `;
+    tbody.appendChild(tr);
+    updateRowTotals();
+  }
+
+  function removeRow(btn) {
+    const tr = btn.closest('tr');
+    if (!tr) return;
+    const tbody = tr.parentElement;
+    if (tbody.querySelectorAll('tr').length <= 1) {
+      tr.querySelectorAll('input').forEach(i => i.value = '');
+      updateRowTotals();
+      return;
+    }
+    tr.remove();
+    updateRowTotals();
+  }
+
+  function parseMoney(v) {
+    if (!v) return 0;
+    const s = String(v).replace(/[$,]/g, '').trim();
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function updateRowTotals() {
+    document.querySelectorAll('.item-row').forEach(row => {
+      const mat = parseMoney(row.querySelector('input[name="item_material[]"]')?.value);
+      const lab = parseMoney(row.querySelector('input[name="item_labor[]"]')?.value);
+      const tot = mat + lab;
+      const cell = row.querySelector('[data-total]');
+      if (cell) cell.textContent = tot > 0 ? `$${tot.toFixed(2)}` : '—';
+    });
+  }
+
+  document.addEventListener('input', (e) => {
+    if (e.target && (e.target.name === 'item_material[]' || e.target.name === 'item_labor[]')) {
+      updateRowTotals();
+    }
+  });
+
+  updateRowTotals();
+</script>
