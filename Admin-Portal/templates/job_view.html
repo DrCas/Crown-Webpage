@@ -219,3 +219,254 @@
 </div>
 
 {% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<div class="job-view-page">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>{{ job_display_name(job) }}</h1>
+      <div class="subtle">
+        PO: <span class="mono">{{ po_display(job) }}</span>
+        • Received: {{ job.received_date|mmddyyyy_date }}
+        • Created: {{ job.created_at|mmddyyyy_dt }}
+        {% if job.source %} • Source: {{ job.source }}{% endif %}
+      </div>
+    </div>
+
+    <div class="page-actions">
+      <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('job_edit', job_id=job.id) }}">Edit</a>
+      {% if current_user.is_admin() %}
+      <form method="POST" action="{{ url_for('job_delete', job_id=job.id) }}" style="display:inline;">
+        <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this job permanently?');">Delete</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="card box">
+    <div class="card-title">Overview</div>
+
+    <div class="overview-grid">
+      <div class="overview-item">
+        <div class="label">PO Number</div>
+        <div class="value mono">{{ po_display(job) or "—" }}</div>
+      </div>
+      <div class="overview-item">
+        <div class="label">Date Received</div>
+        <div class="value">{{ job.received_date|mmddyyyy_date }}</div>
+      </div>
+      <div class="overview-item">
+        <div class="label">Stage</div>
+        <div class="value"><span class="pill">{{ job.stage }}</span></div>
+      </div>
+      <div class="overview-item">
+        <div class="label">Needed By</div>
+        <div class="value">{{ job.needed_by_date|mmddyyyy_date if job.needed_by_date else "—" }}</div>
+      </div>
+    </div>
+
+    <form method="POST" class="stage-form">
+      <input type="hidden" name="action" value="update_stage">
+      <div class="stage-row">
+        <div class="stage-left">
+          <label class="small-label">Update Stage</label>
+          <select name="stage">
+            {% for s in STAGES %}
+              <option value="{{ s }}" {% if s == job.stage %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-secondary" type="submit">Update Progress</button>
+      </div>
+    </form>
+
+    {% set idx = stage_index(job) %}
+    <div class="progress-wrap" aria-label="Job progress">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ (idx / (STAGES|length - 1)) * 100 }}%"></div>
+      </div>
+      <div class="progress-meta">
+        <span class="muted">{{ job.stage }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="two-col">
+    <section class="card box">
+      <div class="card-title">Customer</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="label">Name</div><div class="value">{{ job.customer_name or "—" }}</div></div>
+        <div class="info-row"><div class="label">Company</div><div class="value">{{ job.business_name or "—" }}</div></div>
+        <div class="info-row"><div class="label">Phone</div><div class="value">{{ job.phone_number or "—" }}</div></div>
+        <div class="info-row"><div class="label">Cell</div><div class="value">{{ job.cell or "—" }}</div></div>
+        <div class="info-row">
+          <div class="label">Email</div>
+          <div class="value">{% if job.email_address %}<a href="mailto:{{ job.email_address }}">{{ job.email_address }}</a>{% else %}—{% endif %}</div>
+        </div>
+        <div class="info-row">
+          <div class="label">Address</div>
+          <div class="value">
+            {% set parts = [] %}
+            {% if job.address_1 %}{% set _ = parts.append(job.address_1) %}{% endif %}
+            {% if job.address_2 %}{% set _ = parts.append(job.address_2) %}{% endif %}
+            {% if job.city or job.state or job.zip_code %}
+              {% set line = (job.city or "") ~ (", " if job.city and job.state else "") ~ (job.state or "") ~ (" " if (job.city or job.state) and job.zip_code else "") ~ (job.zip_code or "") %}
+              {% set _ = parts.append(line.strip()) %}
+            {% endif %}
+            {% if parts|length %}{{ parts|join("<br>")|safe }}{% else %}—{% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card box">
+      <div class="card-title">Job Details</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="label">Title</div><div class="value">{{ job.job_title or "—" }}</div></div>
+        <div class="info-row"><div class="label">Work Order</div><div class="value">{{ job.work_order or "—" }}</div></div>
+        <div class="info-row"><div class="label">Crown Rep</div><div class="value">{{ job.crown_rep or "—" }}</div></div>
+        <div class="info-row"><div class="label">Approval Date</div><div class="value">{{ job.approval_date|mmddyyyy_date if job.approval_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Scheduled</div><div class="value">{{ job.scheduled_date|mmddyyyy_date if job.scheduled_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Completed</div><div class="value">{{ job.completed_date|mmddyyyy_date if job.completed_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Pick-Up Date</div><div class="value">{{ job.pickup_date|mmddyyyy_date if job.pickup_date else "—" }}</div></div>
+        <div class="info-row"><div class="label">Quote</div><div class="value">{% if job.quote_amount is not none %}${{ "%.2f"|format(job.quote_amount) }}{% else %}—{% endif %}</div></div>
+        {% if job.job_summary %}
+        <div class="info-row"><div class="label">Summary</div><div class="value prewrap">{{ job.job_summary }}</div></div>
+        {% endif %}
+        {% if job.summary_of_work %}
+        <div class="info-row"><div class="label">Work Summary</div><div class="value prewrap">{{ job.summary_of_work }}</div></div>
+        {% endif %}
+        {% if job.job_details %}
+        <div class="info-row"><div class="label">Details</div><div class="value prewrap">{{ job.job_details }}</div></div>
+{% if job.uploaded_files_json %}
+{% set files = job.uploaded_files_json|fromjson %}
+{% if files %}
+<div class="info-row">
+  <div class="label">Attachments</div>
+  <div class="value">
+    <ul style="margin:0; padding-left: 18px;">
+      {% for p in files %}
+        {% set fname = p.split('/')[-1] %}
+        <li><a href="/uploads/orders/{{ fname }}" target="_blank" rel="noopener">{{ fname }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+{% endif %}
+        {% endif %}
+      </div>
+    </section>
+  </div>
+
+  <section class="card box">
+    <div class="card-title">Line Items</div>
+    {% if job.line_items %}
+      <div class="table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:80px;">Qty</th>
+              <th>Description</th>
+              <th style="width:160px;">Material</th>
+              <th style="width:160px;">Labor</th>
+              <th style="width:160px;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for li in job.line_items %}
+              <tr>
+                <td>{{ li.qty if li.qty is not none else "—" }}</td>
+                <td class="prewrap">{{ li.description or "—" }}</td>
+                <td>{{ ("$%.2f"|format(li.material_price)) if li.material_price is not none else "—" }}</td>
+                <td>{{ ("$%.2f"|format(li.labor_price)) if li.labor_price is not none else "—" }}</td>
+                <td>{{ ("$%.2f"|format(li.line_total)) if li.line_total is not none else "—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="muted">No line items yet.</div>
+    {% endif %}
+  </section>
+
+  {% if current_user.is_admin() %}
+  <section class="card box">
+    <div class="card-title">Audit Log (Admin Only)</div>
+    {% if not logs %}
+      <div class="muted">No log entries yet.</div>
+    {% else %}
+      <div class="table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:180px;">Time</th>
+              <th style="width:160px;">User</th>
+              <th style="width:160px;">Action</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in logs %}
+              <tr>
+                <td>{{ entry.timestamp|mmddyyyy_dt }}</td>
+                <td>{{ entry.actor_username or "—" }}</td>
+                <td>{{ entry.action }}</td>
+                <td class="prewrap">{{ entry.details or "—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+</div>
+
+<style>
+  .job-view-page { max-width: 1200px; margin: 0 auto; padding: 18px 14px; }
+  .page-header { display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; margin-bottom: 14px; flex-wrap:wrap; }
+  .page-title h1 { margin: 0; font-size: 1.45rem; letter-spacing: .2px; }
+  .subtle { opacity: .8; margin-top: 4px; }
+  .muted { opacity: .75; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+  .two-col { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card.box { border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); backdrop-filter: blur(10px); }
+  .card-title { font-weight: 800; margin-bottom: 10px; letter-spacing: .2px; }
+
+  .overview-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 900px) { .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .overview-item { padding: 10px; border-radius: 12px; background: rgba(0,0,0,.14); border: 1px solid rgba(255,255,255,.08); }
+  .overview-item .label { font-size: .78rem; opacity: .78; margin-bottom: 4px; }
+  .overview-item .value { font-size: 1rem; font-weight: 800; }
+  .pill { display:inline-flex; align-items:center; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.10); font-weight: 800; font-size: .85rem; }
+
+  .stage-form { margin-top: 12px; }
+  .stage-row { display:flex; justify-content:space-between; gap: 12px; align-items:end; flex-wrap:wrap; }
+  .stage-left { min-width: 260px; }
+  .small-label { display:block; font-size:.82rem; opacity:.85; margin-bottom: 6px; }
+  select { width:100%; padding: 10px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.18); color: inherit; }
+
+  .progress-wrap { margin-top: 12px; }
+  .progress-bar { height: 10px; width: 100%; border-radius: 999px; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.10); overflow:hidden; }
+  .progress-fill { height: 100%; border-radius: 999px; background: rgba(255,255,255,.65); }
+  .progress-meta { display:flex; justify-content:flex-end; margin-top: 6px; font-size: .85rem; }
+
+  .info-grid { display:flex; flex-direction:column; gap: 10px; }
+  .info-row { display:grid; grid-template-columns: 160px 1fr; gap: 10px; align-items:start; }
+  @media (max-width: 500px) { .info-row { grid-template-columns: 1fr; } }
+  .info-row .label { font-size: .82rem; opacity: .78; }
+  .info-row .value { font-weight: 650; }
+  .prewrap { white-space: pre-wrap; line-height: 1.35; }
+
+  .table-wrap { overflow:auto; }
+  .items-table { width:100%; border-collapse: collapse; }
+  .items-table th, .items-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,.10); vertical-align: top; text-align: left; }
+</style>
+{% endblock %}
