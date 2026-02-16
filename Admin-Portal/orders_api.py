@@ -31,6 +31,122 @@ ALLOWED_EXTS = {
     ".zip", ".rar", ".txt"
 }
 
+def _parse_ymd_date(val: str):
+    """Parse YYYY-MM-DD from <input type="date">. Returns date or None."""
+    if not val:
+        return None
+    try:
+        return datetime.strptime(str(val).strip(), "%Y-%m-%d").date()
+    except Exception:
+        return None
+
+def _format_items_for_text(items: list[dict]) -> str:
+    if not items:
+        return "(none)"
+    lines = []
+    for i, row in enumerate(items, start=1):
+        qty = (row.get("qty") or "").strip()
+        desc = (row.get("description") or row.get("desc") or "").strip()
+        material = (row.get("material") or "").strip()
+        notes = (row.get("notes") or "").strip()
+        parts = []
+        if qty: parts.append(f"Qty: {qty}")
+        if desc: parts.append(f"Desc: {desc}")
+        if material: parts.append(f"Material: {material}")
+        if notes: parts.append(f"Notes: {notes}")
+        lines.append(f"{i}. " + " | ".join(parts))
+    return "\n".join(lines)
+
+
+def _build_human_job_details(order_type: str, form_fields: dict, items: list, saved_files: list[str]) -> str:
+    """Readable job details (what you'd type manually) — not raw JSON."""
+    lines = []
+    lines.append(f"Website intake ({order_type})")
+    lines.append("")
+
+    # ---- Quick-order fields
+    if order_type == "quick":
+        rit = (form_fields.get("requested_item_type") or "").strip()
+        if rit:
+            lines.append(f"Requested item: {rit}")
+        nb = (form_fields.get("needed_by") or "").strip()
+        if nb:
+            lines.append(f"Needed by: {nb}")
+        bcm = (form_fields.get("best_contact_method") or "").strip()
+        if bcm:
+            lines.append(f"Best contact method: {bcm}")
+        lines.append("")
+
+    # ---- Large-project fields
+    if order_type == "large":
+        for k, label in [
+            ("project_type", "Project type"),
+            ("service_needed", "Service needed"),
+            ("design_status", "Design status"),
+            ("existing_graphics", "Existing graphics"),
+            ("measurements_ready", "Measurements ready"),
+            ("site_visit_needed", "Site visit needed"),
+            ("material_preference", "Material preference"),
+            ("install_constraints", "Install constraints"),
+        ]:
+            v = (form_fields.get(k) or "").strip()
+            if v:
+                lines.append(f"{label}: {v}")
+        lines.append("")
+
+        # Install location block
+        install_parts = []
+        for k in ["install_address", "install_city", "install_state", "install_zip"]:
+            v = (form_fields.get(k) or "").strip()
+            if v:
+                install_parts.append(v)
+        if install_parts:
+            lines.append("Install location:")
+            lines.append("  " + ", ".join(install_parts))
+            lines.append("")
+
+        # Vehicle block
+        veh = []
+        for k, label in [("year","Year"),("make","Make"),("model","Model"),("vin","VIN"),("unit_number","Unit #")]:
+            v = (form_fields.get(k) or "").strip()
+            if v:
+                veh.append(f"{label}: {v}")
+        if veh:
+            lines.append("Vehicle:")
+            for x in veh:
+                lines.append("  " + x)
+            lines.append("")
+
+        scope_list = (form_fields.get("scope_list") or "").strip()
+        if scope_list:
+            lines.append("Scope / measurements:")
+            lines.append(scope_list)
+            lines.append("")
+
+    # ---- Items (both forms)
+    lines.append("Requested items:")
+    lines.append(_format_items_for_text(items))
+    lines.append("")
+
+    # ---- Uploaded files
+    if saved_files:
+        lines.append("Uploads:")
+        for p in saved_files:
+            lines.append(f" - {os.path.basename(p)}")
+        lines.append("")
+
+    return "\n".join(lines).strip()
+
+def _build_job_title(order_type: str, form_fields: dict) -> str:
+    if order_type == "quick":
+        rit = (form_fields.get("requested_item_type") or "").strip()
+        return "Website Quick Order" + (f" — {rit}" if rit else "")
+    # large
+    pt = (form_fields.get("project_type") or "").strip()
+    sn = (form_fields.get("service_needed") or "").strip()
+    core = pt or sn
+    return "Website Large Project" + (f" — {core}" if core else "")
+
 def _allowed(filename: str) -> bool:
     _, ext = os.path.splitext(filename.lower())
     return ext in ALLOWED_EXTS
@@ -64,6 +180,8 @@ def _insert_job_from_intake(
     received = date.today()
     created = datetime.now()
 
+    needed_by_date = _parse_ymd_date(form_fields.get('needed_by'))
+
     po_key = _po_key_for_date(received)
     po_seq = _next_po_seq(po_key)
 
@@ -73,7 +191,7 @@ def _insert_job_from_intake(
     email_address = (form_fields.get("email") or "").strip()
 
     summary = (form_fields.get("summary") or "").strip()
-    job_title = "Website Order — " + ("Quick" if order_type == "quick" else "Large")
+    job_title = _build_job_title(order_type, form_fields)
 
     # Store both a readable summary and the raw JSON payload
     submission_payload = {
@@ -86,7 +204,7 @@ def _insert_job_from_intake(
         "created_at": created.isoformat(sep=" "),
     }
 
-    job_details = json.dumps(submission_payload, indent=2)
+    job_details = _build_human_job_details(order_type, form_fields, items, saved_files)
 
     # Create the job
     job = Job(
@@ -97,6 +215,17 @@ def _insert_job_from_intake(
         job_title=job_title,
         job_summary=summary if summary else None,
         job_details=job_details,
+        needed_by_date=needed_by_date,
+        address_1=(form_fields.get("address") or "").strip() or None,
+        city=(form_fields.get("city") or "").strip() or None,
+        state=(form_fields.get("state") or "").strip() or None,
+        zip_code=(form_fields.get("zip") or "").strip() or None,
+        cell=(form_fields.get("cell") or "").strip() or None,
+        vehicle_make=(form_fields.get("make") or "").strip() or None,
+        vehicle_model=(form_fields.get("model") or "").strip() or None,
+        vin=(form_fields.get("vin") or "").strip() or None,
+        unit_number=(form_fields.get("unit_number") or "").strip() or None,
+        mfd_date=_parse_ymd_date(form_fields.get("mfd_date")),
         quote_amount=None,
         received_date=received,
         created_at=created,
@@ -113,6 +242,29 @@ def _insert_job_from_intake(
     db.session.add(job)
     db.session.flush()  # Flush to get the job_id before commit
     job_id = job.id
+
+    # Create line items from intake rows
+    try:
+        from app import JobLineItem
+        for row in items or []:
+            qty_raw = (row.get('qty') or '').strip()
+            try:
+                qty_val = int(qty_raw) if qty_raw else None
+            except Exception:
+                qty_val = None
+            desc = (row.get('description') or row.get('desc') or '').strip()
+            material = (row.get('material') or '').strip()
+            notes = (row.get('notes') or '').strip()
+            parts = [desc] if desc else []
+            if material:
+                parts.append(f"Material: {material}")
+            if notes:
+                parts.append(f"Notes: {notes}")
+            li = JobLineItem(job_id=job_id, qty=qty_val, description='\n'.join(parts) if parts else None)
+            db.session.add(li)
+        db.session.flush()
+    except Exception:
+        current_app.logger.exception('Failed to create line items from intake')
 
     # Create the log entry
     log_entry = JobLog(
@@ -180,7 +332,7 @@ def create_order():
     # -----------------------------
     # Build in-memory order object (no DB yet)
     # -----------------------------
-    order_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    order_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:6]
 
     order_data = {
         "order_id": order_id,

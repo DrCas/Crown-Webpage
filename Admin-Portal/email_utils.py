@@ -59,7 +59,7 @@ def _build_internal_body(order: dict, items: list[dict], uploaded_paths: list[st
         lines.append("  (none)")
     else:
         for i, row in enumerate(items, start=1):
-            lines.append(f"  {i}. Qty={row.get('qty','')}  Desc={row.get('description','')}  Mat={row.get('material','')}  Notes={row.get('notes','')}")
+            lines.append(f"  {i}. Qty={row.get('qty','')}  Desc={(row.get('description','') or row.get('desc',''))}  Mat={row.get('material','')}  Notes={row.get('notes','')}")
     lines.append("")
     lines.append("Uploads")
     if not uploaded_paths:

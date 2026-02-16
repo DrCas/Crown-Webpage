@@ -22,9 +22,10 @@ from flask_login import (
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 
-load_dotenv()
-
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Ensure .env loads reliably even when run from systemd/gunicorn with a different CWD
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 app = Flask(__name__)
 app.config["STATIC_VERSION"] = os.getenv("STATIC_VERSION", "1")
