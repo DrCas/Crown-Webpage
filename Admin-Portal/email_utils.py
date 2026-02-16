@@ -17,6 +17,7 @@ from __future__ import annotations
 # =========================================
 
 import os
+import mimetypes
 import smtplib
 from email.message import EmailMessage
 from typing import Optional
@@ -59,14 +60,14 @@ def _build_internal_body(order: dict, items: list[dict], uploaded_paths: list[st
         lines.append("  (none)")
     else:
         for i, row in enumerate(items, start=1):
-            lines.append(f"  {i}. Qty={row.get('qty','')}  Desc={(row.get('description','') or row.get('desc',''))}  Mat={row.get('material','')}  Notes={row.get('notes','')}")
+            lines.append(f"  {i}. Qty={row.get('qty','')}  Desc={row.get('description','')}  Mat={row.get('material','')}  Notes={row.get('notes','')}")
     lines.append("")
     lines.append("Uploads")
     if not uploaded_paths:
         lines.append("  (none)")
     else:
         for p in uploaded_paths:
-            lines.append(f"  {p}")
+            lines.append(f"  {os.path.basename(p)}")
     return "\n".join(lines)
 
 
@@ -85,6 +86,30 @@ def _build_customer_body(order: dict) -> str:
         "Crown Graphics\n"
     )
 
+
+
+def _attach_uploaded_files(msg: EmailMessage, paths: list[str]) -> None:
+    """Attach uploaded files (if they exist) to the given EmailMessage."""
+    for p in (paths or []):
+        if not p:
+            continue
+        try:
+            if not os.path.exists(p):
+                continue
+            ctype, enc = mimetypes.guess_type(p)
+            if ctype is None or enc is not None:
+                ctype = "application/octet-stream"
+            maintype, subtype = ctype.split("/", 1)
+            with open(p, "rb") as f:
+                msg.add_attachment(
+                    f.read(),
+                    maintype=maintype,
+                    subtype=subtype,
+                    filename=os.path.basename(p),
+                )
+        except Exception:
+            # don't fail the entire email just because one attachment is bad
+            continue
 
 def _send_email(
     host: str,
@@ -159,6 +184,7 @@ def send_order_emails(order: dict, items: list[dict], pdf_bytes: bytes, uploaded
         filename=f"order_{order.get('order_id','')}.pdf",
     )
 
+    _attach_uploaded_files(internal_msg, uploaded_paths)
     _send_email(
         host=smtp_host,
         port=smtp_port,
@@ -188,6 +214,7 @@ def send_order_emails(order: dict, items: list[dict], pdf_bytes: bytes, uploaded
             filename=f"order_{order.get('order_id','')}.pdf",
         )
 
+        _attach_uploaded_files(customer_msg, uploaded_paths)
         _send_email(
             host=smtp_host,
             port=smtp_port,

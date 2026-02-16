@@ -118,6 +118,22 @@
         {% endif %}
         {% if job.job_details %}
         <div class="info-row"><div class="label">Details</div><div class="value prewrap">{{ job.job_details }}</div></div>
+{% if job.uploaded_files_json %}
+{% set files = job.uploaded_files_json|fromjson %}
+{% if files %}
+<div class="info-row">
+  <div class="label">Attachments</div>
+  <div class="value">
+    <ul style="margin:0; padding-left: 18px;">
+      {% for p in files %}
+        {% set fname = p.split('/')[-1] %}
+        <li><a href="/uploads/orders/{{ fname }}" target="_blank" rel="noopener">{{ fname }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+{% endif %}
         {% endif %}
       </div>
     </section>

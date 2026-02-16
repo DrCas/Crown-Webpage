@@ -14,7 +14,7 @@ from decimal import Decimal, InvalidOperation
 from dotenv import load_dotenv
 from sqlalchemy import text
 
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
     LoginManager, UserMixin, login_user, login_required, logout_user, current_user,
@@ -24,7 +24,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-# Ensure .env loads reliably even when run from systemd/gunicorn with a different CWD
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 app = Flask(__name__)
@@ -32,7 +31,23 @@ app.config["STATIC_VERSION"] = os.getenv("STATIC_VERSION", "1")
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
 
 # Optional: where uploaded order files are stored (used by orders_api)
-app.config["ORDER_UPLOAD_DIR"] = os.getenv("ORDER_UPLOAD_DIR", "/mnt/ssd/crowngfx/uploads/orders")
+app.config["ORDER_UPLOAD_DIR"] = os.getenv("ORDER_UPLOAD_DIR", os.path.join(BASE_DIR, "uploads", "orders"))
+
+# Template helper: parse JSON stored in DB (uploaded_files_json, etc.)
+@app.template_filter("fromjson")
+def _fromjson_filter(val):
+    try:
+        return json.loads(val) if val else None
+    except Exception:
+        return None
+
+# Secure download endpoint for order uploads (admin-only)
+@app.get("/uploads/orders/<path:filename>")
+@login_required
+def download_order_upload(filename):
+    upload_dir = app.config.get("ORDER_UPLOAD_DIR")
+    return send_from_directory(upload_dir, filename, as_attachment=True)
+
 
 # DB
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "crown_portal.db")
