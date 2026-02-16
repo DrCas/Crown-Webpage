@@ -84,7 +84,7 @@
 
   // Hook up forms (update IDs if different)
   const quickForm = document.getElementById("quickOrderForm");
-  const largeForm = document.getElementById("largeProjectForm");
+  const largeForm = document.getElementById("largeOrderForm");
   if (quickForm) {
     const errors = document.getElementById("formErrorsQuick");
     quickForm.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(quickForm, errors); });
