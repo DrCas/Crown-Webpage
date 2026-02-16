@@ -4,20 +4,28 @@
 <div class="page">
   <div class="container">
 
+    <!-- Header / Summary -->
     <div class="card job-card">
       <div class="cardtop">
         <div>
           <div class="title">{{ job_display_name(job) }}</div>
           <div class="meta">
-            Customer: {{ job.customer_name }}
-            {% if job.business_name %} • Business: {{ job.business_name }}{% endif %}
+            PO: {{ po_display(job) or "—" }}
             • Received: {{ job.received_date|mmddyyyy_date }}
             • Created: {{ job.created_at|mmddyyyy_dt }}
+            {% if job.source %} • Source: {{ job.source }}{% endif %}
           </div>
         </div>
 
         <div class="btnrow" style="margin-top:0;">
-          <form method="POST" action="{{ url_for('job_update_stage', job_id=job.id) }}" style="display:inline;">
+          <!-- Stage update posts back to job_view; app.py expects action=update_stage -->
+          <form method="POST" action="{{ url_for('job_view', job_id=job.id) }}" style="display:inline;">
+            <input type="hidden" name="action" value="update_stage">
+            <select name="stage" class="select" style="margin-right:8px;">
+              {% for s in STAGES %}
+                <option value="{{ s }}" {% if s == job.stage %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
             <button class="btn btn-primary" type="submit">Update Progress</button>
           </form>
 
@@ -43,21 +51,23 @@
       </div>
     </div>
 
+    <!-- Main two-column layout -->
     <div class="grid grid-2">
 
-      <!-- LEFT: Job details + edit -->
+      <!-- LEFT -->
       <div class="panel">
 
         <div class="section-label">Job Details</div>
         <section class="card job-card">
           <div class="info-grid">
 
+            <div class="info-row"><div class="label">Customer</div><div class="value">{{ job.customer_name or "—" }}</div></div>
+            <div class="info-row"><div class="label">Business</div><div class="value">{{ job.business_name or "—" }}</div></div>
             <div class="info-row"><div class="label">Phone</div><div class="value">{{ job.phone_number or "—" }}</div></div>
             <div class="info-row"><div class="label">Email</div><div class="value">{{ job.email_address or "—" }}</div></div>
-            <div class="info-row"><div class="label">PO</div><div class="value">{{ job.po_date_key }}-{{ "%02d"|format(job.po_seq) }}</div></div>
-            <div class="info-row"><div class="label">Current Stage</div><div class="value">{{ job.stage }}</div></div>
+            <div class="info-row"><div class="label">Stage</div><div class="value">{{ job.stage }}</div></div>
+
             <div class="info-row"><div class="label">Quote</div><div class="value">{% if job.quote_amount is not none %}${{ "%.2f"|format(job.quote_amount) }}{% else %}—{% endif %}</div></div>
-            <div class="info-row"><div class="label">Date Received</div><div class="value">{{ job.received_date|mmddyyyy_date }}</div></div>
 
             <div class="info-row">
               <div class="label">Details / Notes</div>
@@ -98,7 +108,10 @@
         <section class="card job-card">
           <div class="sub" style="margin-bottom:10px;">Staff can update any field. (Customer Name + Job Title required.)</div>
 
-          <form class="form" method="POST" action="{{ url_for('job_update', job_id=job.id) }}">
+          <!-- Save edits posts back to job_view; app.py expects action=save_edits -->
+          <form class="form" method="POST" action="{{ url_for('job_view', job_id=job.id) }}">
+            <input type="hidden" name="action" value="save_edits">
+
             <div class="field">
               <label>Customer Name *</label>
               <input name="customer_name" value="{{ job.customer_name or '' }}" required>
@@ -152,28 +165,46 @@
 
       </div>
 
-      <!-- RIGHT: Order intake / Raw JSON -->
+      <!-- RIGHT -->
       <div class="panel">
 
         {% if job.submission_json %}
           <div class="section-label">Order Intake</div>
           <section class="card job-card">
-            <div class="kvrows">
-              <div class="row"><div class="k">Name</div><div class="v">{{ job.customer_name }}</div></div>
-              <div class="row"><div class="k">Email</div><div class="v">{{ job.email_address or "—" }}</div></div>
-              <div class="row"><div class="k">Phone</div><div class="v">{{ job.phone_number or "—" }}</div></div>
-              <div class="row"><div class="k">Source</div><div class="v">{{ job.source or "—" }}</div></div>
-            </div>
-
-            <div class="section-label" style="margin-top:14px;">Summary</div>
-            <div class="textblock">{{ job.job_summary or "—" }}</div>
-
-            <div class="small" style="margin-top:10px;">Order ID: {{ job.intake_order_id }}</div>
-
-            <details style="margin-top:12px;">
+            <details>
               <summary style="cursor:pointer; font-weight:800; color: var(--gold);">View Raw Intake JSON</summary>
               <pre class="details-pre">{{ job.submission_json | prettyjson }}</pre>
             </details>
+          </section>
+        {% endif %}
+
+        {% if job.line_items %}
+          <div class="section-label">Line Items</div>
+          <section class="card job-card">
+            <div class="table-wrap">
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th style="width: 80px;">Qty</th>
+                    <th>Description</th>
+                    <th style="width: 140px;">Material</th>
+                    <th style="width: 140px;">Labor</th>
+                    <th style="width: 140px;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for li in job.line_items %}
+                    <tr>
+                      <td>{{ li.qty if li.qty is not none else "—" }}</td>
+                      <td>{{ li.description or "—" }}</td>
+                      <td>{{ ("$%.2f"|format(li.material_price)) if li.material_price is not none else "—" }}</td>
+                      <td>{{ ("$%.2f"|format(li.labor_price)) if li.labor_price is not none else "—" }}</td>
+                      <td>{{ ("$%.2f"|format(li.line_total)) if li.line_total is not none else "—" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </section>
         {% endif %}
 
@@ -181,11 +212,10 @@
 
     </div>
 
+    <!-- FULL-WIDTH bottom: Audit Log -->
     {% if current_user.is_admin() %}
       <div class="section-label">Audit Log (Admin Only)</div>
       <section class="card job-card">
-        <div class="sub" style="margin-bottom:10px;">Tracks who changed progress/fields and when.</div>
-
         {% if not logs %}
           <div class="small">No log entries yet.</div>
         {% else %}
