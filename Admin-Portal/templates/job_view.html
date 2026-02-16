@@ -218,16 +218,6 @@
 </div>
 
 {% endblock %}
-<div class="job-view-page">
-  <div class="page-header">
-    <div class="page-title">
-      <h1>{{ job_display_name(job) }}</h1>
-      <div class="subtle">
-        PO: <span class="mono">{{ po_display(job) }}</span>
-        • Received: {{ job.received_date|mmddyyyy_date }}
-        • Created: {{ job.created_at|mmddyyyy_dt }}
-        {% if job.source %} • Source: {{ job.source }}{% endif %}
-      </div>
     </div>
 
     <div class="page-actions">
