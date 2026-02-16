@@ -569,6 +569,7 @@ def job_view(job_id):
         po_display=po_display,
         job_display_name=job_display_name,
         stage_index=stage_index,
+        STAGES=STAGES,
     )
 
 @app.route("/jobs/<int:job_id>/edit", methods=["GET", "POST"])
