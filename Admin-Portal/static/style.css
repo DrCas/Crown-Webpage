@@ -663,3 +663,43 @@ html, body{
 .table th, .table td{
   border-bottom-color: rgba(255,255,255,.12);
 }
+
+/* =========================
+   Attachment download styling
+========================= */
+
+.attachments-list{
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.attachment-link{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 12px;
+  margin-bottom: 8px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255,210,0,.35);
+  background: rgba(255,210,0,.08);
+
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 14px;
+
+  transition: all .18s ease;
+}
+
+.attachment-link:hover{
+  background: rgba(255,210,0,.18);
+  border-color: rgba(255,210,0,.6);
+  transform: translateY(-1px);
+}
+
+.attachment-link::before{
+  content: "⬇";
+  font-size: 13px;
+}
