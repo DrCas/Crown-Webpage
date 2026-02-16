@@ -552,23 +552,26 @@ html, body{
   color: var(--muted);
 }
 
-/* =========================================================
+/*
    FORCE OVERRIDES — logo sizing, gold accents, job view spacing
-   (Added by ChatGPT)
-   Paste-safe: these are overrides that should win cascade order.
-========================================================= */
 
-/* Always constrain the brand/logo image no matter what class is used */
-.brand img,
-.brand-logo,
-.topbar .brand img {
+
+/* Bulletproof: any image inside the brand area gets constrained */
+.topbar .brand img{
   height: 34px !important;
   max-height: 34px !important;
   width: auto !important;
-  max-width: 220px;
-  display: block;
-  object-fit: contain;
+  max-width: 220px !important;
+  object-fit: contain !important;
+  display: block !important;
 }
+
+/* If the logo is inside a link instead of .brand */
+.topbar a img{
+  max-height: 34px !important;
+  width: auto !important;
+}
+
 
 /* Keep the topbar from growing if an image tries to expand */
 .topbar-inner{
