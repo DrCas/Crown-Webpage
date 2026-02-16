@@ -441,6 +441,12 @@ select option {
   filter: drop-shadow(0 10px 22px rgba(255,209,122,.22));
 }
 
+.brand img {
+  max-height: 34px;
+  height: 34px;
+  width: auto;
+}
+
 /* ===== Crown Admin Background (Original Gold Glow) ===== */
 html, body{
   min-height: 100%;
@@ -550,4 +556,48 @@ html, body{
   text-transform: uppercase;
   letter-spacing: .6px;
   color: var(--muted);
+}
+
+/* ==========================================
+   Job View: stop weird stretching + bring gold back
+   Paste at END of style.css
+========================================== */
+
+/* 1) Stop the 2-column cards from stretching to match height */
+.two-col{
+  align-items: start;         /* key: prevents equal-height stretch feel */
+}
+.two-col > *{
+  align-self: start;
+}
+
+/* 2) Fix "title" looking busted on job view (wrap + spacing) */
+.cardtop{
+  align-items: center;
+}
+.title{
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+/* 3) Bring gold accents back (job view only) */
+.job-card .title{
+  color: var(--gold);
+}
+
+.section-label{
+  border-left: 3px solid rgba(255,210,0,.70);
+  padding-left: 10px;
+  color: rgba(255,255,255,.78);
+}
+
+/* Optional: subtle gold borders on job-view blocks */
+.job-card,
+.overview-item{
+  border-color: rgba(255,210,0,.18) !important;
+}
+
+/* Make table headers feel "gold" again */
+.items-table th{
+  color: rgba(255,210,0,.85);
 }
