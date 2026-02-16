@@ -1,238 +1,178 @@
+{% extends "base.html" %}
 {% block content %}
 
-<div class="page">
-  <div class="container">
-
-    <div class="card job-card">
-      <div class="cardtop">
-        <div>
-          <div class="title">{{ job_display_name(job) }}</div>
-          <div class="meta">
-            Customer: {{ job.customer_name }}
-            {% if job.business_name %} • Business: {{ job.business_name }}{% endif %}
-            • Received: {{ job.received_date|mmddyyyy_date }}
-            • Created: {{ job.created_at|mmddyyyy_dt }}
-          </div>
-        </div>
-
-        <div class="btnrow" style="margin-top:0;">
-          <form method="POST" action="{{ url_for('job_update_stage', job_id=job.id) }}" style="display:inline;">
-            <button class="btn btn-primary" type="submit">Update Progress</button>
-          </form>
-
-          {% if current_user.is_admin() %}
-          <form method="POST" action="{{ url_for('job_delete', job_id=job.id) }}" style="display:inline;" onsubmit="return confirm('Delete this job? This cannot be undone.');">
-            <button class="btn btn-danger" type="submit">Delete Job (Admin)</button>
-          </form>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="progress-wrap">
-        <div class="progress-labels">
-          {% for s in STAGES %}<span>{{ s }}</span>{% endfor %}
-        </div>
-        <div class="progress-bar">
-          {% set idx = stage_index(job) %}
-          {% for s in STAGES %}
-            {% set i = loop.index0 %}
-            <div class="seg {% if i < idx %}done{% elif i == idx %}current{% else %}pending{% endif %}"></div>
-          {% endfor %}
-        </div>
+<div class="card job-card">
+  <div class="cardtop">
+    <div>
+      <div class="title">{{ job_display_name(job) }}</div>
+      <div class="meta">
+        Customer: {{ job.customer_name or "—" }}
+        {% if job.business_name %} • Business: {{ job.business_name }}{% endif %}
+        • PO: <span class="mono">{{ po_display(job) }}</span>
+        • Received: {{ job.received_date|mmddyyyy_date }}
+        • Created: {{ job.created_at|mmddyyyy_dt }}
+        {% if job.source %} • Source: {{ job.source }}{% endif %}
       </div>
     </div>
 
-    <div class="grid grid-2">
-
-      <!-- LEFT: Job details + edit -->
-      <div class="panel">
-
-        <div class="section-label">Job Details</div>
-        <section class="card job-card">
-          <div class="info-grid">
-
-            <div class="info-row"><div class="label">Phone</div><div class="value">{{ job.phone_number or "—" }}</div></div>
-            <div class="info-row"><div class="label">Email</div><div class="value">{{ job.email_address or "—" }}</div></div>
-            <div class="info-row"><div class="label">PO</div><div class="value">{{ job.po_date_key }}-{{ "%02d"|format(job.po_seq) }}</div></div>
-            <div class="info-row"><div class="label">Current Stage</div><div class="value">{{ job.stage }}</div></div>
-            <div class="info-row"><div class="label">Quote</div><div class="value">{% if job.quote_amount is not none %}${{ "%.2f"|format(job.quote_amount) }}{% else %}—{% endif %}</div></div>
-            <div class="info-row"><div class="label">Date Received</div><div class="value">{{ job.received_date|mmddyyyy_date }}</div></div>
-
-            <div class="info-row">
-              <div class="label">Details / Notes</div>
-              <div class="value prewrap">{{ job.job_details or "—" }}</div>
-            </div>
-
-            {% if job.uploaded_files_json %}
-              {% set files = job.uploaded_files_json | fromjson %}
-              {% if files %}
-                <div class="info-row">
-                  <div class="label">Attachments</div>
-                  <div class="value">
-                    <ul class="attachments-list">
-                      {% for p in files %}
-                        {% if p is mapping %}
-                          {% set label = p.get('filename') or p.get('saved_as') %}
-                          {% set fname = p.get('saved_as') or p.get('filename') %}
-                        {% else %}
-                          {% set label = p.split('/')[-1] %}
-                          {% set fname = p.split('/')[-1] %}
-                        {% endif %}
-                        <li>
-                          <a class="attachment-link" href="/uploads/orders/{{ fname }}" target="_blank" rel="noopener">
-                            {{ label }}
-                          </a>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                </div>
-              {% endif %}
-            {% endif %}
-
-          </div>
-        </section>
-
-        <div class="section-label">Edit Job</div>
-        <section class="card job-card">
-          <div class="sub" style="margin-bottom:10px;">Staff can update any field. (Customer Name + Job Title required.)</div>
-
-          <form class="form" method="POST" action="{{ url_for('job_update', job_id=job.id) }}">
-            <div class="field">
-              <label>Customer Name *</label>
-              <input name="customer_name" value="{{ job.customer_name or '' }}" required>
-            </div>
-
-            <div class="field">
-              <label>Business Name</label>
-              <input name="business_name" value="{{ job.business_name or '' }}">
-            </div>
-
-            <div class="field">
-              <label>Date Received (MM-DD-YYYY)</label>
-              <input name="received_date" value="{{ job.received_date|mmddyyyy_date if job.received_date else '' }}">
-            </div>
-
-            <div class="field">
-              <label>Phone Number</label>
-              <input name="phone_number" value="{{ job.phone_number or '' }}">
-            </div>
-
-            <div class="field">
-              <label>Email Address</label>
-              <input name="email_address" value="{{ job.email_address or '' }}">
-            </div>
-
-            <div class="field">
-              <label>Job Title *</label>
-              <input name="job_title" value="{{ job.job_title or '' }}" required>
-            </div>
-
-            <div class="field">
-              <label>Job Summary</label>
-              <textarea name="job_summary">{{ job.job_summary or '' }}</textarea>
-            </div>
-
-            <div class="field">
-              <label>Job Details</label>
-              <textarea name="job_details">{{ job.job_details or '' }}</textarea>
-            </div>
-
-            <div class="field">
-              <label>Estimated Quote ($)</label>
-              <input name="quote_amount" value="{{ job.quote_amount if job.quote_amount is not none else '' }}">
-            </div>
-
-            <div class="btnrow">
-              <button class="btn btn-primary" type="submit">Save Changes</button>
-            </div>
-          </form>
-        </section>
-
-      </div>
-
-      <!-- RIGHT: Order intake / Raw JSON -->
-      <div class="panel">
-
-        {% if job.submission_json %}
-          <div class="section-label">Order Intake</div>
-          <section class="card job-card">
-            <div class="kvrows">
-              <div class="row"><div class="k">Name</div><div class="v">{{ job.customer_name }}</div></div>
-              <div class="row"><div class="k">Email</div><div class="v">{{ job.email_address or "—" }}</div></div>
-              <div class="row"><div class="k">Phone</div><div class="v">{{ job.phone_number or "—" }}</div></div>
-              <div class="row"><div class="k">Source</div><div class="v">{{ job.source or "—" }}</div></div>
-            </div>
-
-            <div class="section-label" style="margin-top:14px;">Summary</div>
-            <div class="textblock">{{ job.job_summary or "—" }}</div>
-
-            <div class="small" style="margin-top:10px;">Order ID: {{ job.intake_order_id }}</div>
-
-            <details style="margin-top:12px;">
-              <summary style="cursor:pointer; font-weight:800; color: var(--gold);">View Raw Intake JSON</summary>
-              <pre class="details-pre">{{ job.submission_json | prettyjson }}</pre>
-            </details>
-          </section>
-        {% endif %}
-
-      </div>
-
+    <div class="btnrow" style="margin-top:0;">
+      <a class="btn btn-ghost" href="{{ url_for('dashboard') }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('job_edit', job_id=job.id) }}">Edit</a>
+      {% if current_user.is_admin() %}
+      <form method="POST" action="{{ url_for('job_delete', job_id=job.id) }}" style="display:inline;" onsubmit="return confirm('Delete this job? This cannot be undone.');">
+        <button class="btn btn-danger" type="submit">Delete (Admin)</button>
+      </form>
+      {% endif %}
     </div>
+  </div>
 
-    {% if current_user.is_admin() %}
-      <div class="section-label">Audit Log (Admin Only)</div>
-      <section class="card job-card">
-        <div class="sub" style="margin-bottom:10px;">Tracks who changed progress/fields and when.</div>
+  <!-- Stage update posts back to this same page (job_view handles action=update_stage) -->
+  <form method="POST" style="margin-top:12px;">
+    <input type="hidden" name="action" value="update_stage">
+    <div class="overview-row" style="align-items:center;">
+      <div class="overview-pair" style="max-width:520px;">
+        <div class="label">Update Stage</div>
+        <div class="value" style="flex:1;">
+          <select name="stage" style="width:100%;">
+            {% for s in STAGES %}
+              <option value="{{ s }}" {% if s == job.stage %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-ghost" type="submit">Update Progress</button>
+      </div>
+    </div>
+  </form>
 
-        {% if not logs %}
-          <div class="small">No log entries yet.</div>
-        {% else %}
-          <div class="table-wrap">
-            <table class="items-table">
-              <thead>
-                <tr>
-                  <th style="width: 170px;">Time</th>
-                  <th style="width: 160px;">User</th>
-                  <th style="width: 160px;">Action</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for entry in logs %}
-                  <tr>
-                    <td>{{ entry.timestamp|mmddyyyy_dt }}</td>
-                    <td>{{ entry.actor_username or "—" }}</td>
-                    <td>{{ entry.action }}</td>
-                    <td class="prewrap">{{ entry.details or "—" }}</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% endif %}
-      </section>
-    {% endif %}
-
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      {% for s in STAGES %}<span>{{ s }}</span>{% endfor %}
+    </div>
+    <div class="progress-bar">
+      {% set idx = stage_index(job) %}
+      {% for s in STAGES %}
+        {% set i = loop.index0 %}
+        <div class="seg {% if i < idx %}done{% elif i == idx %}current{% else %}pending{% endif %}"></div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 
+<div class="grid grid-2">
+
+  <!-- LEFT: Job details -->
+  <div class="panel">
+    <div class="section-label">Job Details</div>
+    <section class="card job-card">
+      <div class="info-grid">
+        <div class="info-row"><div class="label">Phone</div><div class="value">{{ job.phone_number or "—" }}</div></div>
+        <div class="info-row"><div class="label">Email</div><div class="value">{% if job.email_address %}<a href="mailto:{{ job.email_address }}">{{ job.email_address }}</a>{% else %}—{% endif %}</div></div>
+        <div class="info-row"><div class="label">PO</div><div class="value">{{ po_display(job) }}</div></div>
+        <div class="info-row"><div class="label">Current Stage</div><div class="value">{{ job.stage }}</div></div>
+        <div class="info-row"><div class="label">Quote</div><div class="value">{% if job.quote_amount is not none %}${{ "%.2f"|format(job.quote_amount) }}{% else %}—{% endif %}</div></div>
+        <div class="info-row"><div class="label">Date Received</div><div class="value">{{ job.received_date|mmddyyyy_date }}</div></div>
+
+        {% if job.job_title %}
+          <div class="info-row"><div class="label">Title</div><div class="value">{{ job.job_title }}</div></div>
+        {% endif %}
+        {% if job.job_summary %}
+          <div class="info-row"><div class="label">Summary</div><div class="value prewrap">{{ job.job_summary }}</div></div>
+        {% endif %}
+
+        <div class="info-row">
+          <div class="label">Details / Notes</div>
+          <div class="value prewrap">{{ job.job_details or "—" }}</div>
+        </div>
+
+        {% if job.uploaded_files_json %}
+          {% set files = job.uploaded_files_json | fromjson %}
+          {% if files %}
+            <div class="info-row">
+              <div class="label">Attachments</div>
+              <div class="value">
+                <ul class="attachments-list">
+                  {% for p in files %}
+                    {% if p is mapping %}
+                      {% set label = p.get('filename') or p.get('saved_as') %}
+                      {% set fname = p.get('saved_as') or p.get('filename') %}
+                    {% else %}
+                      {% set label = p.split('/')[-1] %}
+                      {% set fname = p.split('/')[-1] %}
+                    {% endif %}
+                    <li>
+                      <a class="attachment-link" href="/uploads/orders/{{ fname }}" target="_blank" rel="noopener">{{ label }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </section>
+  </div>
+
+  <!-- RIGHT: Intake + Raw JSON -->
+  <div class="panel">
+    {% if job.submission_json %}
+      <div class="section-label">Order Intake</div>
+      <section class="card job-card">
+        <div class="kvrows">
+          <div class="row"><div class="k">Name</div><div class="v">{{ job.customer_name }}</div></div>
+          <div class="row"><div class="k">Email</div><div class="v">{{ job.email_address or "—" }}</div></div>
+          <div class="row"><div class="k">Phone</div><div class="v">{{ job.phone_number or "—" }}</div></div>
+          <div class="row"><div class="k">Source</div><div class="v">{{ job.source or "—" }}</div></div>
+        </div>
+
+        <div class="section-label" style="margin-top:14px;">Summary</div>
+        <div class="textblock">{{ job.job_summary or "—" }}</div>
+
+        <div class="small" style="margin-top:10px;">Order ID: {{ job.intake_order_id }}</div>
+
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer; font-weight:800; color: var(--gold);">View Raw Intake JSON</summary>
+          <pre class="details-pre">{{ job.submission_json | prettyjson }}</pre>
+        </details>
+      </section>
+    {% endif %}
+  </div>
+
+</div>
+
+{% if current_user.is_admin() %}
+  <div class="section-label">Audit Log (Admin Only)</div>
+  <section class="card job-card">
+    <div class="sub" style="margin-bottom:10px;">Tracks who changed progress/fields and when.</div>
+
+    {% if not logs %}
+      <div class="small">No log entries yet.</div>
+    {% else %}
+      <div class="table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width: 170px;">Time</th>
+              <th style="width: 160px;">User</th>
+              <th style="width: 160px;">Action</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in logs %}
+              <tr>
+                <td>{{ entry.timestamp|mmddyyyy_dt }}</td>
+                <td>{{ entry.actor_username or "—" }}</td>
+                <td>{{ entry.action }}</td>
+                <td class="prewrap">{{ entry.details or "—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </section>
+{% endif %}
+
 {% endblock %}
-
-/* Bulletproof: any image inside the brand area gets constrained */
-.topbar .brand img,
-.topbar a img {
-  height: 34px !important;
-  max-height: 34px !important;
-  width: auto !important;
-  max-width: 180px !important;
-  object-fit: contain !important;
-  display: block !important;
-}
-
-/* Keep the topbar from growing if an image tries to expand */
-.topbar-inner {
-  min-height: 62px;
-  max-height: 62px;
-  overflow: hidden;
-}
