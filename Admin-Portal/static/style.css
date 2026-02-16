@@ -426,3 +426,34 @@ select option {
 @media (max-width: 700px){
   .kvrows .row{ grid-template-columns: 1fr; }
 }
+
+/* =========================
+   Brand logo + watermark
+   ========================= */
+.brand-link{
+  text-decoration:none;
+  color: inherit;
+}
+.brand-logo{
+  height: 34px;
+  width: auto;
+  display:block;
+  filter: drop-shadow(0 10px 22px rgba(255,209,122,.22));
+}
+
+/* ===== Crown Admin Background (Original Gold Glow) ===== */
+html, body{
+  min-height: 100%;
+
+  background-image:
+    radial-gradient(1200px 700px at 20% 10%, rgba(255,210,0,.10), transparent 60%),
+    radial-gradient(900px 600px at 80% 20%, rgba(255,255,255,.06), transparent 55%),
+    radial-gradient(1100px 800px at 50% 85%, rgba(255,255,255,.05), transparent 65%),
+    linear-gradient(180deg, #0b0b0b 0%, #070707 55%, #050505 100%);
+
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+

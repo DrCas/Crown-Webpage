@@ -444,14 +444,19 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    active_jobs = (
-        Job.query.filter(Job.stage != "Completed")
-        .order_by(Job.received_date.desc(), Job.created_at.desc())
-        .all()
-    )
+    # Pagination
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 12, type=int)
+    per_page = max(6, min(per_page, 36))
+
+    query = Job.query.filter(Job.stage != "Completed").order_by(Job.received_date.desc(), Job.created_at.desc())
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
     return render_template(
         "dashboard.html",
-        jobs=active_jobs,
+        jobs=pagination.items,
+        pagination=pagination,
+        per_page=per_page,
         po_display=po_display,
         job_display_name=job_display_name,
         stage_index=stage_index,
@@ -537,6 +542,9 @@ def job_view(job_id):
     logs = []
     if current_user.is_admin():
         logs = JobLog.query.filter_by(job_id=job.id).order_by(JobLog.timestamp.desc()).all()
+
+    idx = stage_index(job)
+    progress_percent = int((idx / (len(STAGES) - 1)) * 100) if len(STAGES) > 1 else 0
 
     return render_template(
         "job_view.html",

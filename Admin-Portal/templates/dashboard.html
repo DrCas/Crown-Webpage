@@ -1,73 +1,210 @@
 {% extends "base.html" %}
-{% set active = "dashboard" %}
 {% block content %}
+<div class="dash-page">
 
-<div class="panel">
-  <div class="h1">Active Jobs</div>
-  <p class="sub">Jobs that are currently in progress (not completed).</p>
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-title">Active Jobs</h1>
+      <div class="dash-subtle">
+        Showing {{ jobs|length }} of {{ pagination.total }} active job{{ '' if pagination.total == 1 else 's' }}
+        • Page {{ pagination.page }} of {{ pagination.pages if pagination.pages else 1 }}
+      </div>
+    </div>
 
-  <div class="btnrow">
-    <a class="btn btn-primary" href="{{ url_for('job_new') }}">+ Create New Job</a>
-    <a class="btn btn-ghost" href="{{ url_for('completed_jobs') }}">View Completed</a>
+    <div class="dash-controls">
+      <div class="per-page">
+        <span class="label">Per page</span>
+        <select onchange="location = this.value;">
+          {% for n in [6, 9, 12, 18, 24, 36] %}
+            <option value="{{ url_for('dashboard', page=1, per_page=n) }}" {% if per_page == n %}selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="grid" style="margin-top:16px;">
   {% if not jobs %}
-    <div class="panel">
-      <div class="h1">No active jobs</div>
-      <p class="sub">Create a new job to get started.</p>
+    <div class="card box empty">
+      <div class="empty-title">No active jobs</div>
+      <div class="empty-subtle">When jobs come in from the website or you create them, they’ll show here.</div>
+      <div style="margin-top: 12px;">
+        <a class="btn btn-primary" href="{{ url_for('job_new') }}">Create Job</a>
+      </div>
     </div>
+  {% else %}
+
+  <div class="jobs-grid">
+    {% for job in jobs %}
+      <a class="job-card" href="{{ url_for('job_view', job_id=job.id) }}" aria-label="Open job {{ job.job_title }}">
+
+        <div class="job-top">
+          <div class="job-left">
+            <!-- Primary -->
+            <div class="job-title">{{ job.job_title or "Untitled Job" }}</div>
+
+            <!-- Secondary (THIS is the name/company line) -->
+            <div class="job-who">
+              <span class="who">{{ job.customer_name or "—" }}</span>
+              {% if job.business_name %}
+                <span class="dot">•</span>
+                <span class="biz">{{ job.business_name }}</span>
+              {% endif %}
+            </div>
+
+            <!-- Contact chips -->
+            <div class="job-contact">
+              {% if job.phone_number %}<span class="chip">📞 {{ job.phone_number }}</span>{% endif %}
+              {% if job.email_address %}<span class="chip">✉️ {{ job.email_address }}</span>{% endif %}
+              {% if job.address_1 or job.city or job.state or job.zip_code %}
+                <span class="chip">
+                  📍
+                  {{ job.address_1 if job.address_1 else '' }}
+                  {% if job.city %} {{ job.city }}{% endif %}{% if job.state %}, {{ job.state }}{% endif %}{% if job.zip_code %} {{ job.zip_code }}{% endif %}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="job-right">
+            {% if job.is_new %}
+              <span class="badge new">NEW</span>
+            {% endif %}
+            <span class="badge stage">{{ job.stage }}</span>
+          </div>
+        </div>
+
+        {% if job.job_summary %}
+          <div class="job-mid">
+            <div class="summary">{{ job.job_summary }}</div>
+          </div>
+        {% endif %}
+
+        <div class="job-bottom">
+          <div class="meta">
+            <span class="k">PO</span>
+            <span class="v mono">{{ po_display(job) }}</span>
+          </div>
+          <div class="meta">
+            <span class="k">Received</span>
+            <span class="v">{{ job.received_date|mmddyyyy_date }}</span>
+          </div>
+          <div class="meta">
+            <span class="k">Created</span>
+            <span class="v">{{ job.created_at|mmddyyyy_dt }}</span>
+          </div>
+        </div>
+
+      </a>
+    {% endfor %}
+  </div>
+
+  <div class="pager">
+    <div class="pager-left">
+      {% if pagination.has_prev %}
+        <a class="btn btn-secondary" href="{{ url_for('dashboard', page=pagination.prev_num, per_page=per_page) }}">← Prev</a>
+      {% else %}
+        <span class="btn btn-secondary disabled">← Prev</span>
+      {% endif %}
+    </div>
+
+    <div class="pager-mid">
+      {% set start = pagination.page - 2 %}
+      {% set end = pagination.page + 2 %}
+      {% if start < 1 %}{% set start = 1 %}{% endif %}
+      {% if end > pagination.pages %}{% set end = pagination.pages %}{% endif %}
+
+      {% if start > 1 %}
+        <a class="page-pill" href="{{ url_for('dashboard', page=1, per_page=per_page) }}">1</a>
+        {% if start > 2 %}<span class="ellipsis">…</span>{% endif %}
+      {% endif %}
+
+      {% for p in range(start, end + 1) %}
+        {% if p == pagination.page %}
+          <span class="page-pill active">{{ p }}</span>
+        {% else %}
+          <a class="page-pill" href="{{ url_for('dashboard', page=p, per_page=per_page) }}">{{ p }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if end < pagination.pages %}
+        {% if end < pagination.pages - 1 %}<span class="ellipsis">…</span>{% endif %}
+        <a class="page-pill" href="{{ url_for('dashboard', page=pagination.pages, per_page=per_page) }}">{{ pagination.pages }}</a>
+      {% endif %}
+    </div>
+
+    <div class="pager-right">
+      {% if pagination.has_next %}
+        <a class="btn btn-secondary" href="{{ url_for('dashboard', page=pagination.next_num, per_page=per_page) }}">Next →</a>
+      {% else %}
+        <span class="btn btn-secondary disabled">Next →</span>
+      {% endif %}
+    </div>
+  </div>
+
   {% endif %}
-
-  {% for job in jobs %}
-    <div class="card">
-      <div class="cardtop">
-        <div>
-          <div class="title">
-            <a href="{{ url_for('job_view', job_id=job.id) }}">{{ job_display_name(job) }}</a>
-          </div>
-          <div class="meta">
-            {{ job.customer_name }}{% if job.business_name %} • {{ job.business_name }}{% endif %}
-            • Stage: <b>{{ job.stage }}</b>
-          </div>
-          <div class="meta">
-            Received: <b>{{ job.received_date|mmddyyyy_date }}</b> • Created: <b>{{ job.created_at|mmddyyyy_dt }}</b>
-          </div>
-        </div>
-        <a class="btn btn-ghost" href="{{ url_for('job_view', job_id=job.id) }}">Open</a>
-      </div>
-
-      <div class="progress-wrap">
-        <div class="progress-labels">
-          {% for s in STAGES %}
-            <span title="{{ s }}">{{ s }}</span>
-          {% endfor %}
-        </div>
-
-        <div class="progress-bar">
-          {% set idx = stage_index(job) %}
-          {% for s in STAGES %}
-            {% set i = loop.index0 %}
-            <div class="seg
-              {% if i < idx %}done{% elif i == idx %}current{% else %}pending{% endif %}
-            "></div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="kv">
-        <div class="item">
-          <div class="k">Phone</div>
-          <div class="v">{{ job.phone_number or "—" }}</div>
-        </div>
-        <div class="item">
-          <div class="k">Email</div>
-          <div class="v">{{ job.email_address or "—" }}</div>
-        </div>
-      </div>
-    </div>
-  {% endfor %}
 </div>
 
+<style>
+  .dash-page { max-width: 1200px; margin: 0 auto; padding: 18px 14px; }
+  .dash-header { display:flex; justify-content:space-between; align-items:flex-start; gap: 12px; flex-wrap:wrap; margin-bottom: 14px; }
+  .dash-title { margin: 0; font-size: 1.5rem; letter-spacing: .2px; }
+  .dash-subtle { opacity: .78; margin-top: 4px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+  .dash-controls { display:flex; gap: 10px; align-items:center; }
+  .per-page { display:flex; gap: 10px; align-items:center; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); backdrop-filter: blur(10px); }
+  .per-page .label { font-size: .82rem; opacity: .85; }
+  .per-page select { padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.18); color: inherit; }
+
+  .jobs-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 1100px) { .jobs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 720px) { .jobs-grid { grid-template-columns: 1fr; } }
+
+  .job-card {
+    display:block;
+    text-decoration:none;
+    color: inherit;
+    border-radius: 16px;
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(10px);
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    min-height: 190px;
+  }
+  .job-card:hover { transform: translateY(-2px); border-color: rgba(255,209,122,.55); background: rgba(255,255,255,.085); }
+
+  .job-top { display:flex; justify-content:space-between; gap: 12px; align-items:flex-start; }
+  .job-left { min-width: 0; }
+  .job-right { display:flex; gap: 8px; align-items:flex-start; justify-content:flex-end; flex-wrap:wrap; }
+
+  .job-title { font-weight: 950; letter-spacing: .2px; font-size: 1.05rem; line-height: 1.15; }
+  .job-who { margin-top: 6px; font-weight: 850; opacity: .95; }
+  .job-who .dot { opacity: .6; padding: 0 6px; }
+  .job-who .biz { opacity: .8; font-weight: 750; }
+
+  .job-contact { margin-top: 10px; display:flex; flex-wrap:wrap; gap: 8px; }
+  .chip { font-size:.78rem; opacity:.92; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); }
+
+  .badge { font-size:.72rem; font-weight: 950; letter-spacing:.3px; padding: 4px 10px; border-radius: 999px; }
+  /* FORCE GOLD */
+  .badge.stage { background: rgba(255,209,122,.18) !important; border: 1px solid rgba(255,209,122,.45) !important; color: #ffd17a !important; }
+  .badge.new { background: rgba(255,209,122,.28) !important; border: 1px solid rgba(255,209,122,.65) !important; color: #ffd17a !important; }
+
+  .job-mid { margin-top: 10px; }
+  .summary { opacity:.78; line-height: 1.25; display:-webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow:hidden; }
+
+  .job-bottom { margin-top: 12px; display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  /* FORCE LIGHTER META */
+  .meta { padding: 10px; border-radius: 12px; background: rgba(255,255,255,.09) !important; border: 1px solid rgba(255,255,255,.18) !important; }
+  .meta .k { display:block; font-size:.72rem; opacity:.75; margin-bottom: 3px; }
+  .meta .v { font-weight: 950; }
+
+  .pager { margin-top: 16px; display:flex; justify-content:space-between; align-items:center; gap: 10px; flex-wrap:wrap; }
+  .btn.disabled { opacity:.45; pointer-events:none; }
+  .pager-mid { display:flex; align-items:center; gap: 8px; flex-wrap:wrap; justify-content:center; }
+  .page-pill { display:inline-flex; align-items:center; justify-content:center; min-width: 36px; height: 32px; padding: 0 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); text-decoration:none; color: inherit; font-weight: 950; }
+  .page-pill.active { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.22); }
+  .ellipsis { opacity:.7; padding: 0 4px; }
+</style>
 {% endblock %}

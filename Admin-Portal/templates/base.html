@@ -10,10 +10,10 @@
 
 <header class="topbar">
   <div class="container topbar-inner">
-    <div class="brand">
-      <span>CROWNGFX</span>
+        <a class="brand brand-link" href="{{ url_for('dashboard') }}" aria-label="Go to dashboard">
+      <img src="{{ url_for('static', filename='images/headerlogo.png') }}" alt="Crown Graphics" class="brand-logo">
       <span class="badge">ADMIN</span>
-    </div>
+    </a>
 
     <nav class="navlinks">
       <a href="{{ url_for('dashboard') }}" class="{% if active=='dashboard' %}active{% endif %}">Active Jobs</a>
