@@ -82,15 +82,18 @@
     }
   }
 
-  // Hook up forms (update IDs if different)
-  const quickForm = document.getElementById("quickOrderForm");
-  const largeForm = document.getElementById("largeOrderForm");
-  if (quickForm) {
-    const errors = document.getElementById("formErrorsQuick");
-    quickForm.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(quickForm, errors); });
-  }
-  if (largeForm) {
-    const errors = document.getElementById("formErrorsLarge");
-    largeForm.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(largeForm, errors); });
-  }
+ // Hook up forms
+const quickForm = document.getElementById("quickOrderForm");
+const largeForm = document.getElementById("largeOrderForm"); // <-- FIX: actual <form>
+
+if (quickForm) {
+  const errors = document.getElementById("formErrorsQuick");
+  quickForm.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(quickForm, errors); });
+}
+
+if (largeForm) {
+  const errors = document.getElementById("formErrorsLarge");
+  largeForm.addEventListener("submit", (e) => { e.preventDefault(); submitOrder(largeForm, errors); });
+}
+
 })();
