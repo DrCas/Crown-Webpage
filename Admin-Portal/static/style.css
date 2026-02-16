@@ -129,7 +129,21 @@ a{ color: inherit; text-decoration:none; }
   font-weight: 800;
   border-radius: 12px;
   padding: 11px 14px;
+  text-decoration: none;
 }
+
+/* Ensure anchor buttons match button buttons exactly */
+a.btn {
+  display: inline-flex !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  padding: 11px 14px !important;
+}
+
+a.btn:hover {
+  text-decoration: none !important;
+}
+
 .btn-primary{
   background: var(--gold);
   color:#000;
@@ -268,6 +282,8 @@ select option {
 /* -------- Progress Bar (segmented) -------- */
 .progress-wrap{
   margin-top: 10px;
+  width: 100%;
+  overflow-x: auto;
 }
 .progress-labels{
   display:flex;
@@ -287,6 +303,8 @@ select option {
 .progress-bar{
   display:flex;
   gap: 6px;
+  width: 100%;
+  min-width: 100%;
 }
 .seg{
   flex:1;
@@ -438,12 +456,16 @@ select option {
   color: inherit;
 }
 .brand-logo{
+  /* LOCKED: Logo sizing */
   height: 34px !important;
+  min-height: 34px !important;
   max-height: 34px !important;
   width: auto !important;
-  display: block !important;
-  filter: drop-shadow(0 10px 22px rgba(255,209,122,.22));
+  max-width: 280px !important;
   object-fit: contain !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  filter: drop-shadow(0 10px 22px rgba(255,209,122,.22));
 }
 
 /* ===== Crown Admin Background (Original Gold Glow) ===== */
@@ -549,6 +571,17 @@ html, body{
   border-bottom: 1px solid rgba(255,255,255,.10);
   vertical-align: top;
 }
+
+/* Gold attachment links */
+.attachment-link {
+  color: var(--gold) !important;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: opacity 0.2s ease;
+}
+.attachment-link:hover {
+  opacity: 0.8;
+}
 .items-table th{
   text-align: left;
   font-size: 12px;
@@ -557,30 +590,27 @@ html, body{
   color: var(--muted);
 }
 
-/*
-   FORCE OVERRIDES — logo sizing, gold accents, job view spacing
-
-
-/* Bulletproof: any image inside the brand area gets constrained */
-.topbar .brand img{
+/* ===== BULLETPROOF LOGO SIZING (DO NOT CHANGE) ===== */
+/* Lock logo to exactly 34px, all selector variations */
+.brand-logo,
+.topbar .brand img,
+.topbar a img,
+.brand img {
   height: 34px !important;
+  min-height: 34px !important;
   max-height: 34px !important;
   width: auto !important;
-  max-width: 220px !important;
+  max-width: 280px !important;
   object-fit: contain !important;
   display: block !important;
+  flex-shrink: 0 !important;
 }
 
-/* If the logo is inside a link instead of .brand */
-.topbar a img{
-  max-height: 34px !important;
-  width: auto !important;
-}
-
-
-/* Keep the topbar from growing if an image tries to expand */
+/* Container constraints */
 .topbar-inner{
-  min-height: 62px;
+  min-height: 62px !important;
+  max-height: 62px !important;
+  overflow: hidden !important;
 }
 
 /* Restore “gold” feel consistently */
@@ -682,35 +712,7 @@ html, body{
   margin-top: 10px;
 }
 
-.attachment-link{
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 
-  padding: 8px 12px;
-  margin-bottom: 8px;
-
-  border-radius: 10px;
-  border: 1px solid rgba(255,210,0,.35);
-  background: rgba(255,210,0,.08);
-
-  color: var(--gold);
-  font-weight: 600;
-  font-size: 14px;
-
-  transition: all .18s ease;
-}
-
-.attachment-link:hover{
-  background: rgba(255,210,0,.18);
-  border-color: rgba(255,210,0,.6);
-  transform: translateY(-1px);
-}
-
-.attachment-link::before{
-  content: "⬇";
-  font-size: 13px;
-}
 
 
 
@@ -732,14 +734,17 @@ html, body{
   .job-two-col{ grid-template-columns: 1fr 1fr; }
 }
 
-/* Attachments: use the same monospace vibe as the old JSON block */
-.attachment-link{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,210,0,.35);
-  color: rgba(255,210,0,.92);
+/* FINAL: Attachment links must be gold - overrides all */
+a.attachment-link,
+.attachment-link {
+  color: #FFD200 !important;
+  font-weight: 600 !important;
+  text-decoration: underline !important;
+  transition: opacity 0.2s ease;
 }
-.attachment-link:hover{
-  background: rgba(0,0,0,0.55);
-  border-color: rgba(255,210,0,.6);
+
+a.attachment-link:hover,
+.attachment-link:hover {
+  opacity: 0.8 !important;
+  text-decoration: underline !important;
 }

@@ -17,7 +17,9 @@
         </div>
 
         <div class="btnrow" style="margin-top:0;">
-          <form method="POST" action="{{ url_for('job_update_stage', job_id=job.id) }}" style="display:inline;">
+          <a href="{{ url_for('job_edit', job_id=job.id) }}" class="btn btn-primary">Edit Job</a>
+          <form method="POST" action="{{ url_for('job_view', job_id=job.id) }}" style="display:inline;">
+            <input type="hidden" name="action" value="update_stage">
             <button class="btn btn-primary" type="submit">Update Progress</button>
           </form>
 
@@ -30,9 +32,6 @@
       </div>
 
       <div class="progress-wrap">
-        <div class="progress-labels">
-          {% for s in STAGES %}<span>{{ s }}</span>{% endfor %}
-        </div>
         <div class="progress-bar">
           {% set idx = stage_index(job) %}
           {% for s in STAGES %}
@@ -94,61 +93,7 @@
           </div>
         </section>
 
-        <div class="section-label">Edit Job</div>
-        <section class="card job-card">
-          <div class="sub" style="margin-bottom:10px;">Staff can update any field. (Customer Name + Job Title required.)</div>
 
-          <form class="form" method="POST" action="{{ url_for('job_update', job_id=job.id) }}">
-            <div class="field">
-              <label>Customer Name *</label>
-              <input name="customer_name" value="{{ job.customer_name or '' }}" required>
-            </div>
-
-            <div class="field">
-              <label>Business Name</label>
-              <input name="business_name" value="{{ job.business_name or '' }}">
-            </div>
-
-            <div class="field">
-              <label>Date Received (MM-DD-YYYY)</label>
-              <input name="received_date" value="{{ job.received_date|mmddyyyy_date if job.received_date else '' }}">
-            </div>
-
-            <div class="field">
-              <label>Phone Number</label>
-              <input name="phone_number" value="{{ job.phone_number or '' }}">
-            </div>
-
-            <div class="field">
-              <label>Email Address</label>
-              <input name="email_address" value="{{ job.email_address or '' }}">
-            </div>
-
-            <div class="field">
-              <label>Job Title *</label>
-              <input name="job_title" value="{{ job.job_title or '' }}" required>
-            </div>
-
-            <div class="field">
-              <label>Job Summary</label>
-              <textarea name="job_summary">{{ job.job_summary or '' }}</textarea>
-            </div>
-
-            <div class="field">
-              <label>Job Details</label>
-              <textarea name="job_details">{{ job.job_details or '' }}</textarea>
-            </div>
-
-            <div class="field">
-              <label>Estimated Quote ($)</label>
-              <input name="quote_amount" value="{{ job.quote_amount if job.quote_amount is not none else '' }}">
-            </div>
-
-            <div class="btnrow">
-              <button class="btn btn-primary" type="submit">Save Changes</button>
-            </div>
-          </form>
-        </section>
 
       </div>
 
@@ -217,202 +162,6 @@
   </div>
 </div>
 
-{% endblock %}
-    </div>
-
-    <div class="page-actions">
-      <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back</a>
-      <a class="btn btn-primary" href="{{ url_for('job_edit', job_id=job.id) }}">Edit</a>
-      {% if current_user.is_admin() %}
-      <form method="POST" action="{{ url_for('job_delete', job_id=job.id) }}" style="display:inline;">
-        <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this job permanently?');">Delete</button>
-      </form>
-      {% endif %}
-    </div>
-  </div>
-
-  <section class="card box">
-    <div class="card-title">Overview</div>
-
-    <div class="overview-grid">
-      <div class="overview-item">
-        <div class="label">PO Number</div>
-        <div class="value mono">{{ po_display(job) or "—" }}</div>
-      </div>
-      <div class="overview-item">
-        <div class="label">Date Received</div>
-        <div class="value">{{ job.received_date|mmddyyyy_date }}</div>
-      </div>
-      <div class="overview-item">
-        <div class="label">Stage</div>
-        <div class="value"><span class="pill">{{ job.stage }}</span></div>
-      </div>
-      <div class="overview-item">
-        <div class="label">Needed By</div>
-        <div class="value">{{ job.needed_by_date|mmddyyyy_date if job.needed_by_date else "—" }}</div>
-      </div>
-    </div>
-
-    <form method="POST" class="stage-form">
-      <input type="hidden" name="action" value="update_stage">
-      <div class="stage-row">
-        <div class="stage-left">
-          <label class="small-label">Update Stage</label>
-          <select name="stage">
-            {% for s in STAGES %}
-              <option value="{{ s }}" {% if s == job.stage %}selected{% endif %}>{{ s }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <button class="btn btn-secondary" type="submit">Update Progress</button>
-      </div>
-    </form>
-
-    {% set idx = stage_index(job) %}
-    <div class="progress-wrap" aria-label="Job progress">
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: {{ (idx / (STAGES|length - 1)) * 100 }}%"></div>
-      </div>
-      <div class="progress-meta">
-        <span class="muted">{{ job.stage }}</span>
-      </div>
-    </div>
-  </section>
-
-  <div class="two-col">
-    <section class="card box">
-      <div class="card-title">Customer</div>
-      <div class="info-grid">
-        <div class="info-row"><div class="label">Name</div><div class="value">{{ job.customer_name or "—" }}</div></div>
-        <div class="info-row"><div class="label">Company</div><div class="value">{{ job.business_name or "—" }}</div></div>
-        <div class="info-row"><div class="label">Phone</div><div class="value">{{ job.phone_number or "—" }}</div></div>
-        <div class="info-row"><div class="label">Cell</div><div class="value">{{ job.cell or "—" }}</div></div>
-        <div class="info-row">
-          <div class="label">Email</div>
-          <div class="value">{% if job.email_address %}<a href="mailto:{{ job.email_address }}">{{ job.email_address }}</a>{% else %}—{% endif %}</div>
-        </div>
-        <div class="info-row">
-          <div class="label">Address</div>
-          <div class="value">
-            {% set parts = [] %}
-            {% if job.address_1 %}{% set _ = parts.append(job.address_1) %}{% endif %}
-            {% if job.address_2 %}{% set _ = parts.append(job.address_2) %}{% endif %}
-            {% if job.city or job.state or job.zip_code %}
-              {% set line = (job.city or "") ~ (", " if job.city and job.state else "") ~ (job.state or "") ~ (" " if (job.city or job.state) and job.zip_code else "") ~ (job.zip_code or "") %}
-              {% set _ = parts.append(line.strip()) %}
-            {% endif %}
-            {% if parts|length %}{{ parts|join("<br>")|safe }}{% else %}—{% endif %}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card box">
-      <div class="card-title">Job Details</div>
-      <div class="info-grid">
-        <div class="info-row"><div class="label">Title</div><div class="value">{{ job.job_title or "—" }}</div></div>
-        <div class="info-row"><div class="label">Work Order</div><div class="value">{{ job.work_order or "—" }}</div></div>
-        <div class="info-row"><div class="label">Crown Rep</div><div class="value">{{ job.crown_rep or "—" }}</div></div>
-        <div class="info-row"><div class="label">Approval Date</div><div class="value">{{ job.approval_date|mmddyyyy_date if job.approval_date else "—" }}</div></div>
-        <div class="info-row"><div class="label">Scheduled</div><div class="value">{{ job.scheduled_date|mmddyyyy_date if job.scheduled_date else "—" }}</div></div>
-        <div class="info-row"><div class="label">Completed</div><div class="value">{{ job.completed_date|mmddyyyy_date if job.completed_date else "—" }}</div></div>
-        <div class="info-row"><div class="label">Pick-Up Date</div><div class="value">{{ job.pickup_date|mmddyyyy_date if job.pickup_date else "—" }}</div></div>
-        <div class="info-row"><div class="label">Quote</div><div class="value">{% if job.quote_amount is not none %}${{ "%.2f"|format(job.quote_amount) }}{% else %}—{% endif %}</div></div>
-        {% if job.job_summary %}
-        <div class="info-row"><div class="label">Summary</div><div class="value prewrap">{{ job.job_summary }}</div></div>
-        {% endif %}
-        {% if job.summary_of_work %}
-        <div class="info-row"><div class="label">Work Summary</div><div class="value prewrap">{{ job.summary_of_work }}</div></div>
-        {% endif %}
-        {% if job.job_details %}
-        <div class="info-row"><div class="label">Details</div><div class="value prewrap">{{ job.job_details }}</div></div>
-{% if job.uploaded_files_json %}
-{% set files = job.uploaded_files_json|fromjson %}
-{% if files %}
-<div class="info-row">
-  <div class="label">Attachments</div>
-  <div class="value">
-    <ul style="margin:0; padding-left: 18px;">
-      {% for p in files %}
-        {% set fname = p.split('/')[-1] %}
-        <li><a href="/uploads/orders/{{ fname }}" target="_blank" rel="noopener">{{ fname }}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
-{% endif %}
-{% endif %}
-        {% endif %}
-      </div>
-    </section>
-  </div>
-
-  <section class="card box">
-    <div class="card-title">Line Items</div>
-    {% if job.line_items %}
-      <div class="table-wrap">
-        <table class="items-table">
-          <thead>
-            <tr>
-              <th style="width:80px;">Qty</th>
-              <th>Description</th>
-              <th style="width:160px;">Material</th>
-              <th style="width:160px;">Labor</th>
-              <th style="width:160px;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for li in job.line_items %}
-              <tr>
-                <td>{{ li.qty if li.qty is not none else "—" }}</td>
-                <td class="prewrap">{{ li.description or "—" }}</td>
-                <td>{{ ("$%.2f"|format(li.material_price)) if li.material_price is not none else "—" }}</td>
-                <td>{{ ("$%.2f"|format(li.labor_price)) if li.labor_price is not none else "—" }}</td>
-                <td>{{ ("$%.2f"|format(li.line_total)) if li.line_total is not none else "—" }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% else %}
-      <div class="muted">No line items yet.</div>
-    {% endif %}
-  </section>
-
-  {% if current_user.is_admin() %}
-  <section class="card box">
-    <div class="card-title">Audit Log (Admin Only)</div>
-    {% if not logs %}
-      <div class="muted">No log entries yet.</div>
-    {% else %}
-      <div class="table-wrap">
-        <table class="items-table">
-          <thead>
-            <tr>
-              <th style="width:180px;">Time</th>
-              <th style="width:160px;">User</th>
-              <th style="width:160px;">Action</th>
-              <th>Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for entry in logs %}
-              <tr>
-                <td>{{ entry.timestamp|mmddyyyy_dt }}</td>
-                <td>{{ entry.actor_username or "—" }}</td>
-                <td>{{ entry.action }}</td>
-                <td class="prewrap">{{ entry.details or "—" }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% endif %}
-  </section>
-  {% endif %}
-
-</div>
-
 <style>
   .job-view-page { max-width: 1200px; margin: 0 auto; padding: 18px 14px; }
   .page-header { display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; margin-bottom: 14px; flex-wrap:wrap; }
@@ -456,4 +205,5 @@
   .items-table { width:100%; border-collapse: collapse; }
   .items-table th, .items-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,.10); vertical-align: top; text-align: left; }
 </style>
+
 {% endblock %}

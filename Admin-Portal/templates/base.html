@@ -12,7 +12,7 @@
   <div class="container topbar-inner">
         <a class="brand brand-link" href="{{ url_for('dashboard') }}" aria-label="Go to dashboard">
       <img src="{{ url_for('static', filename='images/HeaderLogo.png') }}" alt="Crown Graphics" class="brand-logo">
-      <span class="badge">ADMIN</span>
+      <span class="badge">{{ current_user.username.upper() }}</span>
     </a>
 
     <nav class="navlinks">
