@@ -706,3 +706,35 @@ html, body{
   content: "⬇";
   font-size: 13px;
 }
+
+
+
+/* =========================
+   Job View: always two columns
+   ========================= */
+.job-two-col{
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Force two columns even on smaller screens (per request) */
+@media (max-width: 900px){
+  .job-two-col{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px){
+  .job-two-col{ grid-template-columns: 1fr 1fr; }
+}
+
+/* Attachments: use the same monospace vibe as the old JSON block */
+.attachment-link{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,210,0,.35);
+  color: rgba(255,210,0,.92);
+}
+.attachment-link:hover{
+  background: rgba(0,0,0,0.55);
+  border-color: rgba(255,210,0,.6);
+}
